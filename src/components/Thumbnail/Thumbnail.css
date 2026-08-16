@@ -1,0 +1,11 @@
+.post-thumb {
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+}
+.post-thumb.c1 { background: linear-gradient(135deg, #7C9473, #3E5A3F); }
+.post-thumb.c2 { background: linear-gradient(135deg, #C9A867, #8A6B2E); }
+.post-thumb.c3 { background: linear-gradient(135deg, #8FA6A1, #4A6560); }
+.post-thumb.c4 { background: linear-gradient(135deg, #B98A6C, #6E4A34); }

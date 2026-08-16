@@ -1,0 +1,12 @@
+.post-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s;
+}
+.post-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+.post-body{padding:13px 14px 15px;}
+.post-title{font-size:14.5px;font-weight:700;line-height:1.4;margin:0 0 8px;color:var(--ink);}
+.post-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.post-meta{
+  font-size:11.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;
+  padding-top:9px;border-top:1px dashed var(--line);
+}

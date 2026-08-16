@@ -1,0 +1,16 @@
+.mini-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.mini-cal-head b{font-size:13px;color:var(--primary-deep);}
+.mini-cal-link{background:none;border:none;font-size:11.5px;color:var(--ink-faint);font-weight:600;padding:0;}
+.mini-cal-link:hover{color:var(--primary);}
+.mini-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.mini-cal-weekdays span{text-align:center;font-size:10px;color:var(--ink-faint);}
+.mini-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.mini-cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;
+  border-radius:7px;font-size:11px;color:var(--ink-soft);cursor:pointer;
+}
+.mini-cal-day:hover{background:var(--surface-alt);}
+.mini-cal-day.empty{cursor:default;}
+.mini-cal-day.today{background:var(--primary);color:#fff;font-weight:700;}
+.mini-cal-day .dot{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--stamp);}
+.mini-cal-day.today .dot{background:#fff;}

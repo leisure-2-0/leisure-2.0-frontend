@@ -1,0 +1,10 @@
+.chat-fab{
+  position:fixed;bottom:28px;right:28px;z-index:60;
+  width:58px;height:58px;border-radius:50%;border:none;
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 20px rgba(45,62,42,0.32);
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.chat-fab:hover{background:var(--primary-deep);transform:translateY(-3px);box-shadow:0 12px 26px rgba(45,62,42,0.4);}
+.chat-fab svg{width:25px;height:25px;}

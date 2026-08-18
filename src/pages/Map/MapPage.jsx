@@ -1,8 +1,21 @@
 import { useState } from 'react';
+import { Map, useKakaoLoader } from 'react-kakao-maps-sdk';
 import './MapPage.css';
+
+const KAKAO_APP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
+const SOUTH_KOREA_CENTER = { lat: 36.5, lng: 127.8 };
 
 export default function MapPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  // react-kakao-maps-sdk defaults to a protocol-relative "//dapi.kakao.com/..." URL, which
+  // resolves to plain http:// on a local dev server (Vite serves http://localhost) — Kakao's
+  // script endpoint rejects that over http, so force https explicitly.
+  const [loading, loadError] = useKakaoLoader({
+    appkey: KAKAO_APP_KEY ?? '',
+    url: 'https://dapi.kakao.com/v2/maps/sdk.js',
+  });
+
+  const isKeyMissing = !KAKAO_APP_KEY;
 
   return (
     <section className="page map-page">
@@ -19,6 +32,22 @@ export default function MapPage() {
             />
           </div>
         </div>
+
+        {isKeyMissing ? (
+          <div className="map-status-overlay">
+            <b>카카오맵 API 키가 설정되지 않았어요</b>
+            프로젝트 루트에 .env 파일을 만들고 VITE_KAKAO_MAP_KEY 값을 넣어주세요. (.env.example 참고)
+          </div>
+        ) : loadError ? (
+          <div className="map-status-overlay">
+            <b>지도를 불러오지 못했어요</b>
+            카카오 개발자 콘솔 &gt; 내 애플리케이션 &gt; 플랫폼에 이 도메인이 등록돼 있는지 확인해주세요. 자세한 원인은 브라우저 콘솔을 확인해주세요.
+          </div>
+        ) : loading ? (
+          <div className="map-status-overlay">지도를 불러오는 중...</div>
+        ) : (
+          <Map center={SOUTH_KOREA_CENTER} level={13} style={{ width: '100%', height: '100%' }} />
+        )}
       </div>
     </section>
   );

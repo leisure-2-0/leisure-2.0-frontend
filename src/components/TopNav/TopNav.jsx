@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
 import './TopNav.css';
 
@@ -14,15 +14,13 @@ export default function TopNav() {
   return (
     <header className="topnav">
       <div className="topnav-inner">
-        <div className="logo">
+        <Link to="/" className="logo">
           <div className="logo-stamp">여가</div>Yeo-ga
-        </div>
+        </Link>
         <nav className="nav-tabs">
-          <NavLink to="/" end className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>홈</NavLink>
-          <NavLink to="/search" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>둘러보기</NavLink>
-          <NavLink to="/chat" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>AI 챗봇</NavLink>
           <NavLink to="/calendar" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>축제 캘린더</NavLink>
           <NavLink to="/map" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>지도</NavLink>
+          <NavLink to="/search" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>둘러보기</NavLink>
         </nav>
         <div className="nav-search">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>

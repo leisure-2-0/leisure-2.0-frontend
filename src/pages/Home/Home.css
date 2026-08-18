@@ -67,22 +67,7 @@
 .cat-square span{font-size:13px;font-weight:700;color:var(--ink);}
 .cat-square.active .csq{box-shadow:0 0 0 3px var(--primary-deep);}
 
-.map-box{
-  position:relative;height:190px;border-radius:var(--radius);overflow:hidden;
-  background:
-    repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(79,111,82,0.07) 23px, rgba(79,111,82,0.07) 24px),
-    repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(79,111,82,0.07) 23px, rgba(79,111,82,0.07) 24px),
-    linear-gradient(160deg, var(--primary-pale), #EFEEE1);
-  border:1px solid var(--line);margin-bottom:24px;
-}
-.map-box .map-label{position:absolute;top:12px;left:14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--primary-deep);opacity:.65;}
-.pin{
-  position:absolute;display:flex;flex-direction:column;align-items:center;
-  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--primary-deep);
-  cursor:default;
-}
-.pin .dot{width:11px;height:11px;border-radius:50% 50% 50% 0;background:var(--stamp);transform:rotate(45deg);margin-bottom:3px;box-shadow:0 2px 5px rgba(0,0,0,0.15);}
-.pin span{background:rgba(255,255,255,0.85);padding:1px 6px;border-radius:6px;white-space:nowrap;}
+.home-grid .map-box{height:190px;margin-bottom:24px;}
 
 .side-block{margin-bottom:22px;}
 .side-block h4{font-size:13px;font-weight:700;color:var(--ink-soft);margin:0 0 12px;}

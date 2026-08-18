@@ -7,6 +7,7 @@ import Home from './pages/Home/Home.jsx';
 import Chat from './pages/Chat/Chat.jsx';
 import CalendarPage from './pages/Calendar/CalendarPage.jsx';
 import SearchResults from './pages/SearchResults/SearchResults.jsx';
+import MapPage from './pages/Map/MapPage.jsx';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/chat" element={<Chat />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/map" element={<MapPage />} />
           </Routes>
         </main>
       </CalendarProvider>

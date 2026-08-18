@@ -81,6 +81,36 @@ main{max-width:1400px;margin:0 auto;padding:0 32px 60px;}
   .post-grid{grid-template-columns:repeat(2,1fr);}
 }
 
+/* fake grid map + pin marker, shared by the home preview map and the full map page */
+.map-box{
+  position:relative;border-radius:var(--radius);overflow:hidden;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(79,111,82,0.07) 23px, rgba(79,111,82,0.07) 24px),
+    repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(79,111,82,0.07) 23px, rgba(79,111,82,0.07) 24px),
+    linear-gradient(160deg, var(--primary-pale), #EFEEE1);
+  border:1px solid var(--line);
+}
+.map-box .map-label{position:absolute;top:12px;left:14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--primary-deep);opacity:.65;}
+.pin{
+  position:absolute;display:flex;flex-direction:column;align-items:center;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--primary-deep);
+  cursor:default;background:none;border:none;padding:0;
+}
+.pin .dot{width:11px;height:11px;border-radius:50% 50% 50% 0;background:var(--stamp);transform:rotate(45deg);margin-bottom:3px;box-shadow:0 2px 5px rgba(0,0,0,0.15);}
+.pin span{background:rgba(255,255,255,0.85);padding:1px 6px;border-radius:6px;white-space:nowrap;}
+
+/* page-level search bar, shared by the search results page and the map page */
+.search-page-searchbar{
+  display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;
+  padding:6px 8px 6px 20px;box-shadow:var(--shadow-md);
+}
+.search-page-searchbar svg{color:var(--primary-deep);flex-shrink:0;}
+.search-page-searchbar input{flex:1;border:none;background:none;font-size:15.5px;font-family:inherit;color:var(--ink);padding:10px 0;}
+.search-page-searchbar input::placeholder{color:var(--ink-faint);}
+.search-page-searchbar input:focus{outline:none;}
+.search-page-go{background:var(--primary);color:#fff;border:none;padding:0 18px;height:42px;border-radius:12px;font-size:14px;font-weight:700;flex-shrink:0;}
+.search-page-go:hover{background:var(--primary-deep);}
+
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .section-head h3{font-size:18px;margin:0;color:var(--primary-deep);}
 .sort-toggle{display:flex;align-items:center;gap:8px;}

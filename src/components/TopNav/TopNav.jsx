@@ -1,10 +1,13 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
+import { useAuth } from '../../context/auth-context.js';
 import './TopNav.css';
 
 export default function TopNav() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch();
+  const { user, isLoggedIn, logout } = useAuth();
 
   const goToSearchResults = () => {
     const trimmedSearchTerm = searchTerm.trim();
@@ -34,8 +37,16 @@ export default function TopNav() {
           />
         </div>
         <div className="nav-right">
-          <div className="points-pill">⬡ 1,240P</div>
-          <div className="avatar"></div>
+          {isLoggedIn ? (
+            <>
+              <div className="points-pill">⬡ {user.points}</div>
+              <button className="avatar" onClick={logout} title="로그아웃" aria-label="로그아웃"></button>
+            </>
+          ) : (
+            <button className="login-btn" onClick={() => navigate('/login', { state: { from: location.pathname } })}>
+              로그인
+            </button>
+          )}
         </div>
       </div>
     </header>

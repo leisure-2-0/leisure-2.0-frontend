@@ -92,7 +92,6 @@ export default function Chat() {
 
   return (
     <section id="page-chat" className="page">
-      <div className="eyebrow" style={{ marginTop: 26 }}>AI 챗봇 — 소도시 여행 무엇이든 물어보세요</div>
       <div className="chat-grid">
         <div className="chat-side">
           <div className="panel" style={{ padding: 14 }}>

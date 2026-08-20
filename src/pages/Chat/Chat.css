@@ -1,4 +1,4 @@
-.chat-grid{display:grid;grid-template-columns:230px 1fr 260px;gap:24px;margin-top:24px;height:calc(100vh - 190px);min-height:560px;}
+.chat-grid{display:grid;grid-template-columns:230px 1fr 260px;gap:24px;margin-top:32px;height:calc(100vh - 170px);min-height:560px;}
 .chat-side{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
 .prompt-chip{
   text-align:left;background:var(--surface);border:1px solid var(--line);

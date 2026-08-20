@@ -6,7 +6,7 @@ import PostCard from '../../components/PostCard/PostCard.jsx';
 import { POSTS, REGIONS, filterPosts, sortPosts } from '../../data/posts.js';
 import './Home.css';
 
-const HOME_POST_LIMIT = 20;
+const HOME_POST_LIMIT = 18;
 
 const CATEGORIES = [
   { category: 'all', label: '전체', icon: '✦', background: 'var(--primary-deep)', color: '#fff' },

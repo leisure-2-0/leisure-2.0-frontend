@@ -1,0 +1,105 @@
+.mypage-layout{margin-top:26px;display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:start;}
+
+.mypage-sidebar{position:sticky;top:84px;display:flex;flex-direction:column;gap:20px;}
+
+.mypage-profile{display:flex;align-items:center;gap:12px;padding:0 4px 18px;border-bottom:1px solid var(--line);}
+.mypage-avatar{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+  background-size:cover;background-position:center;
+}
+.mypage-profile-info{min-width:0;}
+.mypage-profile-info b{display:block;font-size:14px;color:var(--ink);}
+.mypage-profile-info span{font-size:11.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+
+.mypage-write-btn{
+  background:var(--primary);color:#fff;border:none;
+  padding:9px 16px;border-radius:10px;font-weight:700;font-size:13.5px;white-space:nowrap;
+}
+.mypage-write-btn:hover{background:var(--primary-deep);}
+
+.account-tab-layout{display:flex;gap:28px;align-items:flex-start;}
+
+.account-view{flex:1 1 480px;}
+.account-view h3{font-size:16px;color:var(--primary-deep);margin:0 0 8px;}
+.account-edit-btn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  padding:7px 16px;border-radius:9px;font-weight:700;font-size:12.5px;
+}
+.account-edit-btn:hover{border-color:var(--primary);color:var(--primary-deep);}
+
+.account-row{
+  display:flex;align-items:center;gap:20px;
+  padding:14px 2px;border-bottom:1px solid var(--line);
+}
+.account-label{flex-shrink:0;width:64px;font-size:13px;font-weight:700;color:var(--ink-soft);}
+.account-value{font-size:14px;color:var(--ink);}
+.account-row input{
+  flex:1;min-width:0;max-width:440px;
+  border:1px solid var(--line);border-radius:9px;background:var(--surface-alt);
+  font-size:14px;font-family:inherit;color:var(--ink);padding:9px 12px;
+}
+.account-row input:focus{outline:none;border-color:var(--primary);}
+
+.account-photo-wrap{position:relative;width:96px;height:96px;flex-shrink:0;}
+.account-photo{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+  background-size:cover;background-position:center;
+}
+.account-photo-edit{
+  position:absolute;bottom:0;right:0;width:32px;height:32px;border-radius:50%;
+  background:var(--primary);color:#fff;border:2px solid var(--surface);
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+.account-photo-edit:hover{background:var(--primary-deep);}
+
+.account-save-row{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px;}
+.account-message{font-size:12.5px;font-weight:600;color:var(--primary);}
+.account-save-btn{
+  background:var(--primary);color:#fff;border:none;
+  padding:9px 20px;border-radius:9px;font-weight:700;font-size:13px;
+}
+.account-save-btn:hover{background:var(--primary-deep);}
+.account-cancel-btn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  padding:9px 20px;border-radius:9px;font-weight:700;font-size:13px;
+}
+.account-cancel-btn:hover{border-color:var(--stamp);color:var(--stamp);}
+
+.account-links{margin-top:28px;}
+.account-link-row{
+  display:flex;align-items:center;justify-content:space-between;width:100%;
+  background:none;border:none;border-bottom:1px solid var(--line);
+  padding:14px 2px;font-size:14px;font-weight:600;color:var(--ink);text-align:left;
+}
+.account-link-row:hover{color:var(--primary);}
+.account-link-row:last-child{border-bottom:none;}
+.account-chevron{color:var(--ink-faint);font-size:16px;}
+.account-logout-row:hover{color:var(--stamp);}
+
+.account-points-panel{flex:0 0 340px;}
+.account-points-panel h4{font-size:14px;color:var(--primary-deep);margin:0 0 6px;}
+.account-points-current{margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);}
+.account-points-current b{color:var(--accent);font-family:'IBM Plex Mono',monospace;}
+
+.points-history-list{list-style:none;margin:0;padding:0;}
+.points-history-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 0;border-bottom:1px dashed var(--line);
+}
+.points-history-row:last-child{border-bottom:none;}
+.points-history-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.points-history-label{font-size:12.5px;color:var(--ink);}
+.points-history-date{font-size:10.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+.points-history-amount{flex-shrink:0;font-size:12.5px;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace;}
+
+@media (max-width:1050px){
+  .mypage-layout{grid-template-columns:1fr;}
+  .mypage-sidebar{position:static;}
+}
+
+@media (max-width:760px){
+  .account-tab-layout{flex-direction:column;}
+  .account-view{max-width:none;}
+}

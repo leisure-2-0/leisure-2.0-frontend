@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
-import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,16 +19,16 @@ export default function Login() {
   };
 
   return (
-    <section className="page login-page">
-      <div className="login-card">
-        <Link to="/" className="login-logo">
+    <section className="page auth-page">
+      <div className="auth-card">
+        <Link to="/" className="auth-logo">
           <div className="logo-stamp">여가</div>Yeo-ga
         </Link>
         <h1>다시 만나 반가워요</h1>
-        <p className="login-sub">소도시의 진짜 이야기를 계속 만나보세요.</p>
+        <p className="auth-sub">소도시의 진짜 이야기를 계속 만나보세요.</p>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <label className="login-field">
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label className="auth-field">
             <span>이메일</span>
             <input
               type="email"
@@ -40,7 +39,7 @@ export default function Login() {
               required
             />
           </label>
-          <label className="login-field">
+          <label className="auth-field">
             <span>비밀번호</span>
             <input
               type="password"
@@ -51,10 +50,11 @@ export default function Login() {
               required
             />
           </label>
-          <button type="submit" className="login-submit">로그인</button>
+          <button type="submit" className="auth-submit">로그인</button>
         </form>
 
-        <Link to="/" className="login-skip">로그인 없이 둘러보기 →</Link>
+        <p className="auth-switch">아직 계정이 없으신가요? <Link to="/signup">회원가입</Link></p>
+        <Link to="/" className="auth-skip">로그인 없이 둘러보기 →</Link>
       </div>
     </section>
   );

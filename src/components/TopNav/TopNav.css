@@ -40,6 +40,7 @@
 .avatar{
   width:34px;height:34px;border-radius:50%;border:none;padding:0;
   background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+  background-size:cover;background-position:center;
   flex-shrink:0;transition:box-shadow .15s;
 }
 .avatar:hover{box-shadow:0 0 0 3px var(--primary-pale);}

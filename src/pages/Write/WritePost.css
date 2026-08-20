@@ -1,0 +1,15 @@
+.write-page{display:flex;justify-content:center;padding:36px 20px 60px;}
+
+.write-card{width:100%;max-width:640px;}
+.write-card h1{font-size:22px;color:var(--primary-deep);margin:0 0 6px;font-weight:800;}
+.write-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 26px;}
+
+.write-form{display:flex;flex-direction:column;gap:16px;}
+
+.write-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;}
+.write-actions .auth-submit{margin-top:0;flex:0 0 auto;padding:12px 28px;}
+.write-cancel{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  padding:12px 20px;border-radius:11px;font-weight:700;font-size:14px;
+}
+.write-cancel:hover{border-color:var(--primary);color:var(--primary-deep);}

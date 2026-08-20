@@ -4,7 +4,6 @@ import { useAuth } from '../../context/auth-context.js';
 import './SignUp.css';
 
 const INITIAL_FORM = {
-  username: '',
   password: '',
   confirmPassword: '',
   email: '',
@@ -28,8 +27,8 @@ export default function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    // no backend auth wired up yet — mock sign-up just logs the user straight in
-    login();
+    // no backend auth wired up yet — mock sign-up just logs the user straight in with the entered profile
+    login({ email: form.email, name: form.name, nickname: form.nickname });
     navigate('/', { replace: true });
   };
 
@@ -43,18 +42,6 @@ export default function SignUp() {
         <p className="auth-sub">소도시 사람들의 진짜 이야기를 남겨보세요.</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label className="auth-field">
-            <span>아이디</span>
-            <input
-              type="text"
-              placeholder="사용하실 아이디를 입력해주세요"
-              autoComplete="username"
-              value={form.username}
-              onChange={updateField('username')}
-              required
-            />
-          </label>
-
           <label className="auth-field">
             <span>비밀번호</span>
             <input

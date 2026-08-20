@@ -7,7 +7,7 @@ export default function TopNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch();
-  const { user, isLoggedIn, logout } = useAuth();
+  const { user, isLoggedIn } = useAuth();
 
   const goToSearchResults = () => {
     const trimmedSearchTerm = searchTerm.trim();
@@ -40,7 +40,13 @@ export default function TopNav() {
           {isLoggedIn ? (
             <>
               <div className="points-pill">⬡ {user.points}</div>
-              <button className="avatar" onClick={logout} title="로그아웃" aria-label="로그아웃"></button>
+              <button
+                className="avatar"
+                style={user.avatarUrl ? { backgroundImage: `url(${user.avatarUrl})` } : undefined}
+                onClick={() => navigate('/mypage')}
+                title="마이페이지"
+                aria-label="마이페이지"
+              ></button>
             </>
           ) : (
             <button className="login-btn" onClick={() => navigate('/login', { state: { from: location.pathname } })}>

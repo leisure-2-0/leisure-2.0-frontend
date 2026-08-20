@@ -11,6 +11,9 @@ import SearchResults from './pages/SearchResults/SearchResults.jsx';
 import MapPage from './pages/Map/MapPage.jsx';
 import Login from './pages/Login/Login.jsx';
 import SignUp from './pages/SignUp/SignUp.jsx';
+import MyPage from './pages/MyPage/MyPage.jsx';
+import ChangePassword from './pages/MyPage/ChangePassword.jsx';
+import WritePost from './pages/Write/WritePost.jsx';
 
 export default function App() {
   return (
@@ -28,6 +31,9 @@ export default function App() {
               <Route path="/map" element={<MapPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/mypage" element={<MyPage />} />
+              <Route path="/mypage/password" element={<ChangePassword />} />
+              <Route path="/write" element={<WritePost />} />
             </Routes>
           </main>
         </CalendarProvider>

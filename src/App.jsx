@@ -10,6 +10,7 @@ import CalendarPage from './pages/Calendar/CalendarPage.jsx';
 import SearchResults from './pages/SearchResults/SearchResults.jsx';
 import MapPage from './pages/Map/MapPage.jsx';
 import Login from './pages/Login/Login.jsx';
+import SignUp from './pages/SignUp/SignUp.jsx';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/search" element={<SearchResults />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
             </Routes>
           </main>
         </CalendarProvider>

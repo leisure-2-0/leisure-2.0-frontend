@@ -38,7 +38,7 @@ export default function PostDetail() {
       <div className="post-detail-head">
         <div className="post-detail-head-top">
           <span className="tag cat-chip">{CATEGORY_ICONS[post.category] || '✨'} {post.category}</span>
-          <span className="post-detail-meta">{post.region} · 조회 {post.views} · 방문인증 {post.visits}회</span>
+          <span className="post-detail-meta">{post.region} · 조회 {post.views}</span>
         </div>
         <h1 className="post-detail-title">{post.title}</h1>
         <div className="post-detail-tags">

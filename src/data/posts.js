@@ -68,7 +68,7 @@ export function getPostById(id) {
 export function getMockPostBody(post) {
   return `
     <p>${post.region}에 갈 일이 있다면 꼭 들러보길 추천하는 곳, <b>${post.title}</b>입니다. ${CATEGORY_ICONS[post.category] || ''} ${post.category} 카테고리로 소개하지만, 막상 가보면 사진보다 훨씬 좋았던 곳이라 다시 정리해봤어요.</p>
-    <p>이번에 방문인증도 ${post.visits}회나 쌓였을 만큼, 이미 다녀온 분들의 반응도 좋았던 곳입니다. 조회수 ${post.views}이 괜히 나온 게 아니더라고요.</p>
+    <p>이미 다녀온 분들의 반응도 좋았던 곳입니다. 조회수 ${post.views}이 괜히 나온 게 아니더라고요.</p>
     <h2>가기 전에 알아두면 좋은 것</h2>
     <ul>
       <li>혼자 가도, 같이 가도 무난하게 좋은 분위기</li>

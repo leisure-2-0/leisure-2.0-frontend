@@ -10,13 +10,15 @@ const HOME_POST_LIMIT = 18;
 
 const CATEGORIES = [
   { category: 'all', label: '전체', icon: '✦', background: 'var(--primary-deep)', color: '#fff' },
-  { category: '맛집', label: '맛집', icon: '🍜', background: 'var(--accent-pale)' },
-  { category: '숙소', label: '숙소', icon: '🏠', background: 'var(--primary-pale)' },
-  { category: '액티비티', label: '액티비티', icon: '⛰️', background: 'var(--stamp-pale)' },
-  { category: '풍경', label: '풍경/명소', icon: '🌄', background: 'var(--accent-pale)' },
+  { category: '식당', label: '식당', icon: '🍽️', background: 'var(--accent-pale)' },
+  { category: '카페', label: '카페', icon: '☕', background: 'var(--primary-pale)' },
+  { category: '숙소', label: '숙소', icon: '🏠', background: 'var(--stamp-pale)' },
+  { category: '액티비티', label: '액티비티', icon: '⛰️', background: 'var(--accent-pale)' },
+  { category: '체험', label: '체험', icon: '🎨', background: 'var(--stamp-pale)' },
+  { category: '풍경', label: '풍경/명소', icon: '🌄', background: 'var(--primary-pale)' },
+  { category: '축제', label: '축제', icon: '🎊', background: 'var(--stamp-pale)' },
+  { category: '행사', label: '행사', icon: '🎪', background: 'var(--accent-pale)' },
   { category: '기타', label: '기타', icon: '✨', background: 'var(--primary-pale)' },
-  { category: '축제', label: '축제/행사', icon: '🎊', background: 'var(--stamp-pale)' },
-  { category: '반려동반', label: '반려동반', icon: '🐾', background: 'var(--accent-pale)' },
 ];
 
 export default function Home() {

@@ -1,0 +1,25 @@
+.rich-editor-toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:2px;
+  padding:10px 22px;border-bottom:1px solid var(--line);
+}
+.rich-editor-toolbar button{
+  background:none;border:none;border-radius:7px;
+  padding:6px 10px;font-size:13px;font-weight:700;color:var(--ink-soft);
+}
+.rich-editor-toolbar button:hover{background:var(--surface-alt);color:var(--ink);}
+.rich-editor-toolbar button.active{background:var(--primary-pale);color:var(--primary-deep);}
+.rich-editor-sep{width:1px;height:18px;background:var(--line);margin:0 4px;flex-shrink:0;}
+
+.rich-editor-content{padding:20px 22px 28px;min-height:360px;}
+.rich-editor-content .ProseMirror{outline:none;font-size:14.5px;line-height:1.8;color:var(--ink);}
+.rich-editor-content .ProseMirror p.is-editor-empty:first-child::before{
+  content:attr(data-placeholder);float:left;height:0;color:var(--ink-faint);pointer-events:none;
+}
+.rich-editor-content .ProseMirror img{max-width:100%;border-radius:9px;margin:10px 0;}
+.rich-editor-content .ProseMirror h2{font-size:20px;color:var(--primary-deep);margin:18px 0 8px;}
+.rich-editor-content .ProseMirror h3{font-size:16.5px;color:var(--primary-deep);margin:16px 0 6px;}
+.rich-editor-content .ProseMirror ul,
+.rich-editor-content .ProseMirror ol{padding-left:22px;margin:8px 0;}
+.rich-editor-content .ProseMirror blockquote{
+  margin:10px 0;padding:4px 0 4px 14px;border-left:3px solid var(--primary-pale);color:var(--ink-soft);
+}

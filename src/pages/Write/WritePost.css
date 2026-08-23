@@ -1,15 +1,155 @@
-.write-page{display:flex;justify-content:center;padding:36px 20px 60px;}
+/* single-column layout: cover image card, then the title/editor card, then plain meta fields */
+.write-page{max-width:860px;margin:0 auto;padding:30px 20px 60px;}
+.write-page form{display:flex;flex-direction:column;gap:20px;}
 
-.write-card{width:100%;max-width:640px;}
-.write-card h1{font-size:22px;color:var(--primary-deep);margin:0 0 6px;font-weight:800;}
-.write-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 26px;}
+/* the "글 작성" card — just the title and the editor */
+.write-main{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);overflow:hidden;
+}
 
-.write-form{display:flex;flex-direction:column;gap:16px;}
+.write-title-input{
+  display:block;width:100%;border:none;border-bottom:1px solid var(--line);background:none;
+  font-size:24px;font-weight:800;color:var(--primary-deep);padding:20px 22px;
+  font-family:inherit;
+}
+.write-title-input::placeholder{color:var(--ink-faint);}
+.write-title-input:focus{outline:none;}
 
-.write-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;}
+/* the cover image gets its own separate card, sitting above the title/editor card */
+.cover-image-field{
+  position:relative;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.cover-image-banner{
+  position:relative;width:100%;height:220px;
+  display:flex;align-items:center;justify-content:center;
+  border:none;padding:0;
+}
+.cover-image-photo{position:absolute;inset:0;background-size:cover;background-position:center;}
+.cover-image-caption{
+  position:relative;z-index:1;color:#fff;font-size:12.5px;font-weight:700;
+  background:rgba(0,0,0,0.18);padding:6px 12px;border-radius:20px;
+}
+.cover-image-hover-hint{
+  position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,26,18,0.4);color:#fff;font-size:13px;font-weight:700;
+  opacity:0;transition:opacity .15s;
+}
+.cover-image-banner:hover .cover-image-hover-hint{opacity:1;}
+.cover-image-reset{
+  position:absolute;bottom:14px;right:14px;z-index:3;
+  background:rgba(20,26,18,0.55);color:#fff;border:none;
+  padding:7px 14px;border-radius:20px;font-size:11.5px;font-weight:700;
+  opacity:0;transition:opacity .15s;
+}
+.cover-image-field:hover .cover-image-reset{opacity:1;}
+.cover-image-reset:hover{background:rgba(20,26,18,0.75);}
+
+@media (max-width:640px){
+  .cover-image-reset{opacity:1;}
+}
+
+/* plain, un-boxed post metadata sections (category / tags / location) — no width cap of their
+   own, so they span the exact same full width as the cover image and the write-main card above */
+.category-chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+
+/* clicking the small static preview opens the full picker modal */
+.location-preview{
+  position:relative;width:100%;height:200px;border-radius:11px;overflow:hidden;
+  border:1px solid var(--line);padding:0;background:var(--surface-alt);
+}
+.location-preview-map{position:absolute;inset:0;pointer-events:none;}
+.location-preview-hint{
+  position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,26,18,0.4);color:#fff;font-size:12.5px;font-weight:700;
+  opacity:0;transition:opacity .15s;
+}
+.location-preview:hover .location-preview-hint{opacity:1;}
+
+.location-address{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.5;}
+
+/* inside the modal: a real address search + a larger, fully interactive map */
+.location-search{display:flex;gap:8px;margin-bottom:12px;}
+.location-search input{
+  flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;background:var(--surface-alt);
+  font-size:13.5px;font-family:inherit;color:var(--ink);padding:9px 12px;
+}
+.location-search input:focus{outline:none;border-color:var(--primary);}
+.location-modal-map{position:relative;width:100%;height:420px;border-radius:11px;overflow:hidden;border:1px solid var(--line);}
+.location-modal-map + .location-address{margin-top:12px;}
+.location-modal-actions{display:flex;justify-content:flex-end;margin-top:16px;}
+.location-modal-actions .auth-submit{margin-top:0;padding:11px 26px;}
+
+/* free-text tag input: type + Enter/comma adds a chip, Backspace on empty removes the last one.
+   single underline (no outer box) so the chips aren't a "box inside a box". */
+.tag-input{display:flex;align-items:flex-end;gap:10px;width:100%;}
+.tag-input-chips{
+  flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  border-bottom:1px solid var(--line);padding:8px 2px;
+}
+.tag-input:focus-within .tag-input-chips{border-color:var(--primary);}
+.tag-input-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--primary-pale);color:var(--primary-deep);
+  padding:4px 6px 4px 10px;border-radius:20px;font-size:12.5px;font-weight:700;
+}
+.tag-input-chip button{
+  background:none;border:none;padding:0 2px;color:var(--primary-deep);
+  font-size:14px;line-height:1;opacity:.6;
+}
+.tag-input-chip button:hover{opacity:1;}
+.tag-input-field{
+  flex:1;min-width:140px;border:none;background:none;
+  font-size:13.5px;font-family:inherit;color:var(--ink);padding:4px 2px;
+}
+.tag-input-field:focus{outline:none;}
+.tag-input-field::placeholder{color:var(--ink-faint);}
+.tag-input-field:disabled::placeholder{color:var(--ink-faint);}
+.tag-input-count{flex:0 0 auto;font-size:12px;color:var(--ink-faint);padding-bottom:9px;}
+
+.write-actions{display:flex;gap:10px;justify-content:space-between;}
+.write-actions-left{display:flex;gap:10px;}
+.write-actions-right{display:flex;gap:10px;}
 .write-actions .auth-submit{margin-top:0;flex:0 0 auto;padding:12px 28px;}
 .write-cancel{
   background:none;border:1px solid var(--line);color:var(--ink-soft);
   padding:12px 20px;border-radius:11px;font-weight:700;font-size:14px;
 }
 .write-cancel:hover{border-color:var(--primary);color:var(--primary-deep);}
+.write-draft-btn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  padding:12px 20px;border-radius:11px;font-weight:700;font-size:14px;
+}
+.write-draft-btn:hover{border-color:var(--primary);color:var(--primary-deep);}
+.write-draft-saved-hint{
+  align-self:center;font-size:12px;color:var(--primary-deep);font-weight:700;
+}
+
+/* draft list modal */
+.draft-list{display:flex;flex-direction:column;gap:16px;min-width:420px;}
+.draft-list-empty{color:var(--ink-faint);font-size:13.5px;padding:20px 4px;text-align:center;}
+.draft-list-group-label{font-size:12.5px;font-weight:800;color:var(--ink-soft);margin:0 0 8px;}
+.draft-row{
+  width:100%;display:flex;align-items:flex-start;gap:10px;
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);
+  text-align:left;
+}
+.draft-row:hover{border-color:var(--primary);}
+.draft-row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+.draft-row-head{display:flex;align-items:center;gap:8px;}
+.draft-badge{
+  flex:0 0 auto;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;
+}
+.draft-badge-auto{background:var(--surface-alt);color:var(--ink-soft);}
+.draft-badge-manual{background:var(--primary-pale);color:var(--primary-deep);}
+.draft-badge-rejected{background:#fdeaea;color:#c23c3c;}
+.draft-row-date{font-size:11.5px;color:var(--ink-faint);}
+.draft-row-title{font-size:14px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.draft-row-reason{font-size:12px;color:#c23c3c;line-height:1.4;}
+.draft-row-delete{
+  flex:0 0 auto;background:none;border:none;color:var(--ink-faint);
+  font-size:18px;line-height:1;padding:2px 4px;
+}
+.draft-row-delete:hover{color:#c23c3c;}

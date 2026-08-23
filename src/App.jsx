@@ -14,6 +14,7 @@ import SignUp from './pages/SignUp/SignUp.jsx';
 import MyPage from './pages/MyPage/MyPage.jsx';
 import ChangePassword from './pages/MyPage/ChangePassword.jsx';
 import WritePost from './pages/Write/WritePost.jsx';
+import PostDetail from './pages/PostDetail/PostDetail.jsx';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/password" element={<ChangePassword />} />
               <Route path="/write" element={<WritePost />} />
+              <Route path="/post/:postId" element={<PostDetail />} />
             </Routes>
           </main>
         </CalendarProvider>

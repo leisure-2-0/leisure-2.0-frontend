@@ -26,15 +26,15 @@ const CANNED_REPLIES = [
   {
     text: '말씀하신 조건에 맞는 인증 게시글을 찾아볼게요. 잠시만요.',
     refCards: [
-      { variant: 2, title: '중앙시장 뒷골목 게스트하우스', info: '방문인증 2회' },
-      { variant: 4, title: '초보도 가능한 카약 체험', info: '방문인증 8회' },
+      { variant: 2, title: '중앙시장 뒷골목 게스트하우스', info: '강릉 · 숙소' },
+      { variant: 4, title: '초보도 가능한 카약 체험', info: '여수 · 액티비티' },
     ],
   },
   {
-    text: '이 지역은 최근 방문 인증이 활발히 올라오고 있어요. 관련 게시글 2건을 참고해보세요.',
+    text: '이 지역은 최근 인증 게시글이 활발히 올라오고 있어요. 관련 게시글 2건을 참고해보세요.',
     refCards: [
-      { variant: 1, title: '노을 명당 골목', info: '방문인증 5회' },
-      { variant: 3, title: '근대골목 산책로', info: '방문인증 1회' },
+      { variant: 1, title: '노을 명당 골목', info: '통영 · 풍경' },
+      { variant: 3, title: '근대골목 산책로', info: '군산 · 풍경' },
     ],
   },
 ];
@@ -47,8 +47,8 @@ const INITIAL_MESSAGES = [
     role: 'ai',
     text: '강릉 주민들이 직접 인증한 카페 게시글 중에서 조용히 혼자 시간 보내기 좋은 곳 2곳을 찾았어요.',
     refCards: [
-      { variant: 1, title: '안목해변 뷰 로컬 카페', info: '방문인증 5회' },
-      { variant: 3, title: '구도심 골목 원두집', info: '방문인증 3회' },
+      { variant: 1, title: '안목해변 뷰 로컬 카페', info: '강릉 · 카페' },
+      { variant: 3, title: '구도심 골목 원두집', info: '강릉 · 카페' },
     ],
   },
 ];

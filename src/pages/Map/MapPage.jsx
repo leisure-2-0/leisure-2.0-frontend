@@ -1,19 +1,13 @@
 import { useState } from 'react';
 import { Map, useKakaoLoader } from 'react-kakao-maps-sdk';
+import { KAKAO_APP_KEY, KAKAO_LOADER_OPTIONS } from '../../lib/kakaoLoader.js';
 import './MapPage.css';
 
-const KAKAO_APP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
 const SOUTH_KOREA_CENTER = { lat: 36.5, lng: 127.8 };
 
 export default function MapPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  // react-kakao-maps-sdk defaults to a protocol-relative "//dapi.kakao.com/..." URL, which
-  // resolves to plain http:// on a local dev server (Vite serves http://localhost) — Kakao's
-  // script endpoint rejects that over http, so force https explicitly.
-  const [loading, loadError] = useKakaoLoader({
-    appkey: KAKAO_APP_KEY ?? '',
-    url: 'https://dapi.kakao.com/v2/maps/sdk.js',
-  });
+  const [loading, loadError] = useKakaoLoader(KAKAO_LOADER_OPTIONS);
 
   const isKeyMissing = !KAKAO_APP_KEY;
 

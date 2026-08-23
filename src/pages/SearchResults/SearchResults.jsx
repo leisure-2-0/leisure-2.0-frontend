@@ -1,19 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
-import { POSTS, REGIONS, filterPosts, sortPosts } from '../../data/posts.js';
+import { CATEGORY_ICONS, POSTS, REGIONS, filterPosts, sortPosts } from '../../data/posts.js';
 import './SearchResults.css';
 
-const CATEGORY_FILTER_OPTIONS = [
-  { category: 'all', label: '전체' },
-  { category: '맛집', label: '맛집' },
-  { category: '숙소', label: '숙소' },
-  { category: '액티비티', label: '액티비티' },
-  { category: '풍경', label: '풍경/명소' },
-  { category: '기타', label: '기타' },
-  { category: '축제', label: '축제/행사' },
-  { category: '반려동반', label: '반려동반' },
-];
+// derived from the canonical category list so this filter can't drift out of sync with it
+const CATEGORY_FILTER_OPTIONS = ['all', ...Object.keys(CATEGORY_ICONS)];
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,11 +52,11 @@ export default function SearchResults() {
             <div className="filter-option-list">
               {CATEGORY_FILTER_OPTIONS.map((option) => (
                 <button
-                  key={option.category}
-                  className={'filter-option' + (selectedCategory === option.category ? ' active' : '')}
-                  onClick={() => setSelectedCategory(option.category)}
+                  key={option}
+                  className={'filter-option' + (selectedCategory === option ? ' active' : '')}
+                  onClick={() => setSelectedCategory(option)}
                 >
-                  {option.label}
+                  {option === 'all' ? '전체' : option}
                 </button>
               ))}
             </div>

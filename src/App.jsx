@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import TopNav from './components/TopNav/TopNav.jsx';
+import Footer from './components/Footer/Footer.jsx';
 import ChatFab from './components/ChatFab/ChatFab.jsx';
 import { SearchProvider } from './context/SearchContext.jsx';
 import { CalendarProvider } from './context/CalendarContext.jsx';
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/post/:postId" element={<PostDetail />} />
             </Routes>
           </main>
+          <Footer />
         </CalendarProvider>
       </SearchProvider>
     </AuthProvider>

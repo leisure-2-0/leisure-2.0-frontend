@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import TopNav from './components/TopNav/TopNav.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import ChatFab from './components/ChatFab/ChatFab.jsx';
+import BottomNav from './components/BottomNav/BottomNav.jsx';
 import { SearchProvider } from './context/SearchContext.jsx';
 import { CalendarProvider } from './context/CalendarContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -40,6 +41,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <BottomNav />
         </CalendarProvider>
       </SearchProvider>
     </AuthProvider>

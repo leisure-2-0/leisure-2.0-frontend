@@ -8,3 +8,8 @@
 }
 .chat-fab:hover{background:var(--primary-deep);transform:translateY(-3px);box-shadow:0 12px 26px rgba(45,62,42,0.4);}
 .chat-fab svg{width:25px;height:25px;}
+
+/* 모바일 폭에서는 하단 네비게이션의 AI챗 항목이 이 버튼을 대신한다 */
+@media (max-width:720px){
+  .chat-fab{display:none;}
+}

@@ -75,12 +75,15 @@
 }
 .profile-menu-link:hover{background:var(--surface-alt);color:var(--primary-deep);}
 
-@media (max-width:880px){
+@media (max-width:880px) and (min-width:721px){
   .nav-search{display:none;}
 }
 
-@media (max-width:520px){
+/* 720px 이하부터는 모바일 앱 같은 UI로 전환 — 헤더는 로고+검색창만 남기고,
+   나머지(탭/포인트/글쓰기/프로필)는 하단 BottomNav가 대신한다. */
+@media (max-width:720px){
   .topnav-inner{padding:12px 16px;gap:14px;}
-  .logo{font-size:0;gap:0;}
-  .write-btn{padding:9px 12px;font-size:12.5px;}
+  .nav-tabs,
+  .nav-right{display:none;}
+  .nav-search{display:flex;flex:1;min-width:0;}
 }

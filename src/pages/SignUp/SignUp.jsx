@@ -7,7 +7,6 @@ const INITIAL_FORM = {
   password: '',
   confirmPassword: '',
   email: '',
-  name: '',
   nickname: '',
 };
 
@@ -28,7 +27,7 @@ export default function SignUp() {
     e.preventDefault();
     if (!canSubmit) return;
     // no backend auth wired up yet — mock sign-up just logs the user straight in with the entered profile
-    login({ email: form.email, name: form.name, nickname: form.nickname });
+    login({ email: form.email, nickname: form.nickname });
     navigate('/', { replace: true });
   };
 
@@ -80,17 +79,6 @@ export default function SignUp() {
             />
           </label>
 
-          <label className="auth-field">
-            <span>이름</span>
-            <input
-              type="text"
-              placeholder="실명을 입력해주세요"
-              autoComplete="name"
-              value={form.name}
-              onChange={updateField('name')}
-              required
-            />
-          </label>
           <label className="auth-field">
             <span>닉네임</span>
             <input

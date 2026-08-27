@@ -79,10 +79,6 @@ export default function AccountTab() {
 
         <form onSubmit={handleSave}>
           <div className="account-row">
-            <span className="account-label">이름</span>
-            <span className="account-value">{user.name}</span>
-          </div>
-          <div className="account-row">
             <span className="account-label">이메일</span>
             {isEditing ? (
               <input type="email" value={editForm.email} onChange={updateEditField('email')} required />

@@ -1,14 +1,10 @@
-import { useNavigate } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 
 export default function MyPostsTab({ posts }) {
-  const navigate = useNavigate();
-
   return (
     <>
       <div className="section-head">
         <h3>내 게시글 <span className="result-count">{posts.length}개</span></h3>
-        <button className="mypage-write-btn" onClick={() => navigate('/write')}>+ 새 글 작성</button>
       </div>
 
       {posts.length === 0 ? (

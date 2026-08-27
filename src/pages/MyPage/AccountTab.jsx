@@ -8,8 +8,8 @@ export default function AccountTab() {
   const { user, updateProfile, logout } = useAuth();
   const photoInputRef = useRef(null);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ email: user.email, nickname: user.nickname });
+  const [isEditingNickname, setIsEditingNickname] = useState(false);
+  const [nicknameDraft, setNicknameDraft] = useState(user.nickname);
   const [profileMessage, setProfileMessage] = useState('');
 
   const handlePhotoChange = (e) => {
@@ -19,22 +19,20 @@ export default function AccountTab() {
     e.target.value = '';
   };
 
-  const startEditing = () => {
-    setEditForm({ email: user.email, nickname: user.nickname });
+  const startEditingNickname = () => {
+    setNicknameDraft(user.nickname);
     setProfileMessage('');
-    setIsEditing(true);
+    setIsEditingNickname(true);
   };
 
-  const cancelEditing = () => setIsEditing(false);
+  const cancelEditingNickname = () => setIsEditingNickname(false);
 
-  const updateEditField = (field) => (e) => {
-    setEditForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
-
-  const handleSave = (e) => {
+  const handleSaveNickname = (e) => {
     e.preventDefault();
-    updateProfile(editForm);
-    setIsEditing(false);
+    const trimmed = nicknameDraft.trim();
+    if (!trimmed) return;
+    updateProfile({ nickname: trimmed });
+    setIsEditingNickname(false);
     setProfileMessage('저장되었어요.');
   };
 
@@ -77,36 +75,47 @@ export default function AccountTab() {
           </div>
         </div>
 
-        <form onSubmit={handleSave}>
-          <div className="account-row">
-            <span className="account-label">이메일</span>
-            {isEditing ? (
-              <input type="email" value={editForm.email} onChange={updateEditField('email')} required />
-            ) : (
-              <span className="account-value">{user.email}</span>
-            )}
-          </div>
-          <div className="account-row">
-            <span className="account-label">닉네임</span>
-            {isEditing ? (
-              <input type="text" value={editForm.nickname} onChange={updateEditField('nickname')} required />
-            ) : (
-              <span className="account-value">{user.nickname}</span>
-            )}
-          </div>
+        <div className="account-row">
+          <span className="account-label">이메일</span>
+          <span className="account-value">{user.email}</span>
+        </div>
 
-          <div className="account-save-row">
-            {!isEditing && profileMessage && <span className="account-message">{profileMessage}</span>}
-            {isEditing ? (
-              <>
-                <button type="button" className="account-cancel-btn" onClick={cancelEditing}>취소</button>
-                <button type="submit" className="account-save-btn">저장</button>
-              </>
-            ) : (
-              <button type="button" className="account-edit-btn" onClick={startEditing}>수정</button>
-            )}
-          </div>
-        </form>
+        <div className="account-row">
+          <span className="account-label">닉네임</span>
+          {isEditingNickname ? (
+            <form className="account-inline-edit" onSubmit={handleSaveNickname}>
+              <input
+                type="text"
+                value={nicknameDraft}
+                onChange={(e) => setNicknameDraft(e.target.value)}
+                autoFocus
+                required
+              />
+              <button type="submit" className="account-icon-btn" title="저장" aria-label="닉네임 저장">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+              <button type="button" className="account-icon-btn" title="취소" aria-label="닉네임 수정 취소" onClick={cancelEditingNickname}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </form>
+          ) : (
+            <div className="account-inline-value">
+              <span className="account-value">{user.nickname}</span>
+              <button type="button" className="account-icon-btn" title="닉네임 수정" aria-label="닉네임 수정" onClick={startEditingNickname}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </button>
+              {profileMessage && <span className="account-message">{profileMessage}</span>}
+            </div>
+          )}
+        </div>
 
         <div className="account-links">
           <Link to="/mypage/password" className="account-link-row">

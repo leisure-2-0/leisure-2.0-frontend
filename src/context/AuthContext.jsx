@@ -5,7 +5,6 @@ import { AuthContext } from './auth-context.js';
 // whether a "user" is logged in and holds the bits the header/mypage need to display.
 const DEFAULT_PROFILE = {
   email: 'yeoga@example.com',
-  name: '여가',
   nickname: '여가러버',
   points: '1,240P',
   avatarUrl: null,

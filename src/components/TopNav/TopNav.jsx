@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
 import { useAuth } from '../../context/auth-context.js';
@@ -8,11 +9,28 @@ export default function TopNav() {
   const location = useLocation();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch();
   const { user, isLoggedIn } = useAuth();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const goToSearchResults = () => {
     const trimmedSearchTerm = searchTerm.trim();
     navigate(trimmedSearchTerm ? `/search?q=${encodeURIComponent(trimmedSearchTerm)}` : '/search');
   };
+
+  const goToMyPage = (tab) => {
+    setIsProfileMenuOpen(false);
+    navigate(tab ? `/mypage?tab=${tab}` : '/mypage');
+  };
+
+  // 프로필 메뉴 바깥을 클릭하면 닫기
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+    function handleOutsideClick(event) {
+      if (!profileMenuRef.current?.contains(event.target)) setIsProfileMenuOpen(false);
+    }
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, [isProfileMenuOpen]);
 
   return (
     <header className="topnav">
@@ -39,14 +57,40 @@ export default function TopNav() {
         <div className="nav-right">
           {isLoggedIn ? (
             <>
-              <div className="points-pill">⬡ {user.points}</div>
-              <button
-                className="avatar"
-                style={user.avatarUrl ? { backgroundImage: `url(${user.avatarUrl})` } : undefined}
-                onClick={() => navigate('/mypage')}
-                title="마이페이지"
-                aria-label="마이페이지"
-              ></button>
+              <button className="write-btn" onClick={() => navigate('/write')}>+ 새 글 작성</button>
+              <div className="profile-menu-wrap" ref={profileMenuRef}>
+                <button
+                  className="avatar"
+                  style={user.avatarUrl ? { backgroundImage: `url(${user.avatarUrl})` } : undefined}
+                  onClick={() => setIsProfileMenuOpen((open) => !open)}
+                  title="프로필"
+                  aria-label="프로필 메뉴 열기"
+                ></button>
+
+                {isProfileMenuOpen && (
+                  <div className="profile-menu">
+                    <div className="profile-menu-header">
+                      <div
+                        className="profile-menu-avatar"
+                        style={user.avatarUrl ? { backgroundImage: `url(${user.avatarUrl})` } : undefined}
+                      ></div>
+                      <div className="profile-menu-id">
+                        <b>{user.nickname}</b>
+                        <span>{user.email}</span>
+                      </div>
+                    </div>
+
+                    <div className="profile-menu-points">⬡ {user.points}</div>
+
+                    <div className="profile-menu-links">
+                      <button className="profile-menu-link" onClick={() => goToMyPage()}>내 게시글</button>
+                      <button className="profile-menu-link" onClick={() => goToMyPage('likes')}>좋아요</button>
+                      <button className="profile-menu-link" onClick={() => goToMyPage('bookmarks')}>북마크</button>
+                      <button className="profile-menu-link" onClick={() => goToMyPage('account')}>설정</button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <button className="login-btn" onClick={() => navigate('/login', { state: { from: location.pathname } })}>

@@ -53,6 +53,7 @@ export default function MyPage() {
           {activeTab === 'posts' && <MyPostsTab posts={MY_POSTS} />}
           {activeTab === 'bookmarks' && (
             <SavedPostsTab
+              title="북마크"
               posts={MY_BOOKMARKS}
               emptyTitle="아직 북마크한 게시글이 없어요"
               emptyBody="마음에 드는 이야기를 북마크해보세요."
@@ -60,6 +61,7 @@ export default function MyPage() {
           )}
           {activeTab === 'likes' && (
             <SavedPostsTab
+              title="좋아요"
               posts={MY_LIKES}
               emptyTitle="아직 좋아요한 게시글이 없어요"
               emptyBody="공감 가는 이야기에 좋아요를 남겨보세요."

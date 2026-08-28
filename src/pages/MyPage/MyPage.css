@@ -48,16 +48,18 @@
 }
 .account-photo-edit:hover{background:var(--primary-deep);}
 
+.account-save-row{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px;}
 .account-message{font-size:12.5px;font-weight:600;color:var(--primary);}
-
-.account-inline-value{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
-.account-inline-edit{display:flex;align-items:center;gap:8px;flex:1;min-width:0;}
-.account-inline-edit input{flex:1;min-width:0;max-width:280px;}
-.account-icon-btn{
-  background:none;border:none;padding:4px;color:var(--ink-faint);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;border-radius:6px;
+.account-save-btn{
+  background:var(--primary);color:#fff;border:none;
+  padding:9px 20px;border-radius:9px;font-weight:700;font-size:13px;
 }
-.account-icon-btn:hover{color:var(--primary);background:var(--surface-alt);}
+.account-save-btn:hover{background:var(--primary-deep);}
+.account-cancel-btn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  padding:9px 20px;border-radius:9px;font-weight:700;font-size:13px;
+}
+.account-cancel-btn:hover{border-color:var(--stamp);color:var(--stamp);}
 
 .account-links{margin-top:28px;}
 .account-link-row{

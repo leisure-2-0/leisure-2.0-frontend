@@ -1,15 +1,64 @@
-import { useState } from 'react';
-import { Map, useKakaoLoader } from 'react-kakao-maps-sdk';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Map, MapMarker, CustomOverlayMap, useKakaoLoader } from 'react-kakao-maps-sdk';
 import { KAKAO_APP_KEY, KAKAO_LOADER_OPTIONS } from '../../lib/kakaoLoader.js';
+import * as mapApi from '../../api/map.js';
 import './MapPage.css';
 
 const SOUTH_KOREA_CENTER = { lat: 36.5, lng: 127.8 };
 
 export default function MapPage() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, loadError] = useKakaoLoader(KAKAO_LOADER_OPTIONS);
 
+  const [regionPins, setRegionPins] = useState([]);
+  const [bounds, setBounds] = useState(null);
+  const [postPins, setPostPins] = useState([]);
+
   const isKeyMissing = !KAKAO_APP_KEY;
+
+  // 지역별 집계 핀은 화면 범위와 무관하게 항상 유효해서 한 번만 불러온다.
+  useEffect(() => {
+    let cancelled = false;
+    mapApi.getRegionPinCounts().then((data) => {
+      if (!cancelled) setRegionPins(data);
+    }).catch(() => {
+      // 실패해도 지도 자체는 계속 쓸 수 있게 조용히 넘어간다.
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const latSpan = bounds ? bounds.maxLat - bounds.minLat : Infinity;
+  const lngSpan = bounds ? bounds.maxLng - bounds.minLng : Infinity;
+  const isCityLevel = latSpan <= mapApi.MAX_PIN_QUERY_SPAN && lngSpan <= mapApi.MAX_PIN_QUERY_SPAN;
+
+  // 시 단위로 충분히 확대됐을 때만 개별 게시글 핀을 불러온다(그보다 넓으면 백엔드가 400을 반환).
+  useEffect(() => {
+    if (!bounds || !isCityLevel) return;
+    let cancelled = false;
+    mapApi.getPostPins(bounds).then((data) => {
+      if (!cancelled) setPostPins(data);
+    }).catch(() => {
+      // 조회 실패는 조용히 무시 — 다음 idle에서 재시도된다.
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [bounds, isCityLevel]);
+
+  const handleBoundsSettled = (map) => {
+    const b = map.getBounds();
+    const sw = b.getSouthWest();
+    const ne = b.getNorthEast();
+    setBounds({ minLat: sw.getLat(), maxLat: ne.getLat(), minLng: sw.getLng(), maxLng: ne.getLng() });
+  };
+
+  const handleRegionPinClick = (region) => {
+    navigate(`/search?q=${encodeURIComponent(region)}`);
+  };
 
   return (
     <section className="page map-page">
@@ -40,7 +89,31 @@ export default function MapPage() {
         ) : loading ? (
           <div className="map-status-overlay">지도를 불러오는 중...</div>
         ) : (
-          <Map center={SOUTH_KOREA_CENTER} level={13} style={{ width: '100%', height: '100%' }} />
+          <Map
+            center={SOUTH_KOREA_CENTER}
+            level={13}
+            style={{ width: '100%', height: '100%' }}
+            onCreate={handleBoundsSettled}
+            onIdle={handleBoundsSettled}
+          >
+            {!isCityLevel && regionPins.map((pin) => (
+              <CustomOverlayMap key={pin.region} position={{ lat: pin.centerLat, lng: pin.centerLng }} yAnchor={1}>
+                <button type="button" className="map-region-pin" onClick={() => handleRegionPinClick(pin.region)}>
+                  <span className="map-region-pin-dot"></span>
+                  <span className="map-region-pin-label">{pin.region} {pin.postCount}</span>
+                </button>
+              </CustomOverlayMap>
+            ))}
+
+            {isCityLevel && postPins.map((pin) => (
+              <MapMarker
+                key={pin.postId}
+                position={{ lat: pin.latitude, lng: pin.longitude }}
+                title={pin.title}
+                onClick={() => navigate(`/post/${pin.postId}`)}
+              />
+            ))}
+          </Map>
         )}
       </div>
     </section>

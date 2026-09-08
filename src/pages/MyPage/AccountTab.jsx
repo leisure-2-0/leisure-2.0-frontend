@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
+import * as authApi from '../../api/auth.js';
+import { getErrorMessage } from '../../api/errors.js';
 import { POINT_HISTORY } from '../../data/mypage.js';
 
 export default function AccountTab() {
@@ -12,6 +14,8 @@ export default function AccountTab() {
   const [nicknameDraft, setNicknameDraft] = useState(user.nickname);
   const [avatarDraft, setAvatarDraft] = useState(null);
   const [profileMessage, setProfileMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const displayedAvatarUrl = avatarDraft || user.avatarUrl;
 
@@ -32,18 +36,42 @@ export default function AccountTab() {
 
   const cancelEditing = () => setIsEditing(false);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     const trimmed = nicknameDraft.trim();
     if (!trimmed) return;
-    updateProfile({ nickname: trimmed, ...(avatarDraft ? { avatarUrl: avatarDraft } : {}) });
-    setIsEditing(false);
-    setProfileMessage('저장되었어요.');
+    setIsSaving(true);
+    setProfileMessage('');
+    try {
+      // 프로필 이미지 업로드는 백엔드에 아직 없어 닉네임만 서버에 반영하고, 사진은 미리보기로만 표시한다.
+      await authApi.changeProfile({ nickname: trimmed, profileImageUrl: null });
+      updateProfile({ nickname: trimmed, ...(avatarDraft ? { avatarUrl: avatarDraft } : {}) });
+      setIsEditing(false);
+      setProfileMessage('저장되었어요.');
+    } catch (err) {
+      setProfileMessage(getErrorMessage(err));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleWithdraw = async () => {
+    if (isWithdrawing) return;
+    if (!window.confirm('정말 탈퇴하시겠어요? 탈퇴하면 계정과 작성한 게시글 등 데이터를 되돌릴 수 없어요.')) return;
+    setIsWithdrawing(true);
+    try {
+      await authApi.withdrawMember();
+      await logout();
+      navigate('/');
+    } catch (err) {
+      setProfileMessage(getErrorMessage(err));
+      setIsWithdrawing(false);
+    }
   };
 
   return (
@@ -101,8 +129,8 @@ export default function AccountTab() {
             {!isEditing && profileMessage && <span className="account-message">{profileMessage}</span>}
             {isEditing ? (
               <>
-                <button type="button" className="account-cancel-btn" onClick={cancelEditing}>취소</button>
-                <button type="submit" className="account-save-btn">저장</button>
+                <button type="button" className="account-cancel-btn" onClick={cancelEditing} disabled={isSaving}>취소</button>
+                <button type="submit" className="account-save-btn" disabled={isSaving}>저장</button>
               </>
             ) : (
               <button type="button" className="account-edit-btn" onClick={startEditing}>수정</button>
@@ -116,6 +144,12 @@ export default function AccountTab() {
           </Link>
           <button className="account-link-row account-logout-row" onClick={handleLogout}>
             <span>로그아웃</span><span className="account-chevron">›</span>
+          </button>
+        </div>
+
+        <div className="account-withdraw-row">
+          <button type="button" className="account-withdraw-btn" onClick={handleWithdraw} disabled={isWithdrawing}>
+            {isWithdrawing ? '탈퇴 처리 중...' : '회원 탈퇴'}
           </button>
         </div>
       </div>

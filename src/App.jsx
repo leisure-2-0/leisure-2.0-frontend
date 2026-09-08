@@ -37,6 +37,7 @@ export default function App() {
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/password" element={<ChangePassword />} />
               <Route path="/write" element={<WritePost />} />
+              <Route path="/write/:postId" element={<WritePost />} />
               <Route path="/post/:postId" element={<PostDetail />} />
             </Routes>
           </main>

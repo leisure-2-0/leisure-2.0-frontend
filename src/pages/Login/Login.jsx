@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
+import { getErrorMessage } from '../../api/errors.js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -8,14 +9,23 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const redirectTo = location.state?.from ?? '/';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // no backend auth wired up yet — this just flips the mock logged-in state
-    login();
-    navigate(redirectTo, { replace: true });
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await login(email, password);
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -50,7 +60,9 @@ export default function Login() {
               required
             />
           </label>
-          <button type="submit" className="auth-submit">로그인</button>
+          {error && <p className="auth-field-error">{error}</p>}
+
+          <button type="submit" className="auth-submit" disabled={isSubmitting}>로그인</button>
         </form>
 
         <p className="auth-switch">아직 계정이 없으신가요? <Link to="/signup">회원가입</Link></p>

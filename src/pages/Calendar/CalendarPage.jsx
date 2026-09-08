@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCalendar } from '../../context/calendar-context.js';
-import { EVENTS, defaultDateFor } from '../../data/events.js';
+import { defaultDateFor } from '../../data/events.js';
+import * as festivalsApi from '../../api/festivals.js';
 import CalendarGrid from './CalendarGrid.jsx';
 import DayDetail from './DayDetail.jsx';
 import TopFestivalList from './TopFestivalList.jsx';
@@ -8,9 +9,7 @@ import './CalendarPage.css';
 
 const CALENDAR_FILTERS = [
   { category: 'all', label: '전체' },
-  { category: '축제', label: '축제' },
-  { category: '행사', label: '행사 / 마켓' },
-  { category: '계절', label: '계절 이벤트' },
+  ...festivalsApi.CALENDAR_CATEGORIES.map((category) => ({ category, label: category })),
 ];
 
 export default function CalendarPage() {
@@ -18,7 +17,62 @@ export default function CalendarPage() {
   const [selectedFilterCategory, setSelectedFilterCategory] = useState('all');
 
   const effectiveDate = selectedDate ?? defaultDateFor(calYear, calMonth);
-  const detailEvents = EVENTS[effectiveDate] || [];
+  const backendCategory = festivalsApi.toBackendCategory(selectedFilterCategory);
+
+  // 월(연/월/카테고리) 조합별로 캐싱한다. 캐시가 없으면 로딩 중.
+  const [monthCache, setMonthCache] = useState({});
+  const monthKey = `${calYear}-${calMonth}-${selectedFilterCategory}`;
+  const monthEntry = monthCache[monthKey];
+  const eventsByDate = monthEntry ? festivalsApi.buildDayEventsMap(monthEntry, calYear, calMonth) : {};
+  const monthLoading = !monthEntry;
+
+  useEffect(() => {
+    if (monthCache[monthKey]) return;
+    let cancelled = false;
+    festivalsApi
+      .getMonthlyFestivals({ year: calYear, month: calMonth + 1, category: backendCategory })
+      .then((data) => {
+        if (!cancelled) setMonthCache((prev) => ({ ...prev, [monthKey]: data }));
+      })
+      .catch(() => {
+        if (!cancelled) setMonthCache((prev) => ({ ...prev, [monthKey]: [] }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [monthKey, calYear, calMonth, backendCategory, monthCache]);
+
+  // 날짜(일자/카테고리) 조합별로 캐싱한다.
+  const [dayCache, setDayCache] = useState({});
+  const dayKey = `${effectiveDate}-${selectedFilterCategory}`;
+  const dayEntry = dayCache[dayKey];
+  const detailEvents = dayEntry
+    ? dayEntry.map((d) => ({
+        title: d.name,
+        category: festivalsApi.fromBackendCategory(d.category),
+        region: d.signguName,
+        time: d.eventTime,
+        description: d.overview,
+        homepageUrl: d.homepageUrl,
+      }))
+    : [];
+  const dayLoading = !dayEntry;
+
+  useEffect(() => {
+    if (dayCache[dayKey]) return;
+    let cancelled = false;
+    festivalsApi
+      .getDailyFestivals({ date: effectiveDate, category: backendCategory })
+      .then((data) => {
+        if (!cancelled) setDayCache((prev) => ({ ...prev, [dayKey]: data }));
+      })
+      .catch(() => {
+        if (!cancelled) setDayCache((prev) => ({ ...prev, [dayKey]: [] }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dayKey, effectiveDate, backendCategory, dayCache]);
 
   return (
     <section id="page-calendar" className="page">
@@ -48,11 +102,12 @@ export default function CalendarPage() {
           calMonth={calMonth}
           selectedDate={effectiveDate}
           onSelectDate={setSelectedDate}
+          eventsByDate={monthLoading ? {} : eventsByDate}
         />
         <TopFestivalList />
       </div>
 
-      <DayDetail selectedDate={effectiveDate} events={detailEvents} />
+      <DayDetail selectedDate={effectiveDate} events={detailEvents} loading={dayLoading} />
     </section>
   );
 }

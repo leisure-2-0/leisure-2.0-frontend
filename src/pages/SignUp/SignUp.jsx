@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
+import * as authApi from '../../api/auth.js';
+import { getErrorMessage } from '../../api/errors.js';
 import './SignUp.css';
 
 const INITIAL_FORM = {
@@ -10,25 +12,71 @@ const INITIAL_FORM = {
   nickname: '',
 };
 
+const IDLE_STATUS = { checking: false, message: '', available: null };
+const DUPLICATE_CHECK_DELAY_MS = 500;
+
+function useDuplicateCheck(value, checkFn) {
+  const [status, setStatus] = useState(IDLE_STATUS);
+
+  useEffect(() => {
+    const trimmed = value.trim();
+    const timer = setTimeout(() => {
+      if (!trimmed) {
+        setStatus(IDLE_STATUS);
+        return;
+      }
+      setStatus({ checking: true, message: '', available: null });
+      checkFn(trimmed)
+        .then((res) => setStatus({ checking: false, message: res.data.message, available: true }))
+        .catch((err) => setStatus({ checking: false, message: getErrorMessage(err), available: false }));
+    }, DUPLICATE_CHECK_DELAY_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return status;
+}
+
 export default function SignUp() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const [form, setForm] = useState(INITIAL_FORM);
   const [isConfirmTouched, setIsConfirmTouched] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail);
+  const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname);
 
   const passwordsMismatch = isConfirmTouched && form.confirmPassword !== '' && form.confirmPassword !== form.password;
-  const canSubmit = Object.values(form).every((value) => value.trim() !== '') && form.password === form.confirmPassword;
+  const canSubmit =
+    Object.values(form).every((value) => value.trim() !== '') &&
+    form.password === form.confirmPassword &&
+    emailStatus.available !== false &&
+    nicknameStatus.available !== false;
 
   const updateField = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    // no backend auth wired up yet — mock sign-up just logs the user straight in with the entered profile
-    login({ email: form.email, nickname: form.nickname });
-    navigate('/', { replace: true });
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await signup({
+        email: form.email,
+        password: form.password,
+        passwordCheck: form.confirmPassword,
+        nickname: form.nickname,
+      });
+      navigate('/', { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,6 +126,10 @@ export default function SignUp() {
               required
             />
           </label>
+          {emailStatus.checking && <p className="auth-field-hint">확인 중...</p>}
+          {!emailStatus.checking && emailStatus.message && (
+            <p className={emailStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{emailStatus.message}</p>
+          )}
 
           <label className="auth-field">
             <span>닉네임</span>
@@ -90,8 +142,14 @@ export default function SignUp() {
               required
             />
           </label>
+          {nicknameStatus.checking && <p className="auth-field-hint">확인 중...</p>}
+          {!nicknameStatus.checking && nicknameStatus.message && (
+            <p className={nicknameStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{nicknameStatus.message}</p>
+          )}
 
-          <button type="submit" className="auth-submit" disabled={!canSubmit}>회원가입</button>
+          {error && <p className="auth-field-error">{error}</p>}
+
+          <button type="submit" className="auth-submit" disabled={!canSubmit || isSubmitting}>회원가입</button>
         </form>
 
         <p className="auth-switch">이미 계정이 있으신가요? <Link to="/login">로그인</Link></p>

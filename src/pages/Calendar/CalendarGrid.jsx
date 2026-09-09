@@ -1,6 +1,6 @@
-import { EVENTS, pad, todayStr } from '../../data/events.js';
+import { pad, todayStr } from '../../data/events.js';
 
-export default function CalendarGrid({ calYear, calMonth, selectedDate, onSelectDate }) {
+export default function CalendarGrid({ calYear, calMonth, selectedDate, onSelectDate, eventsByDate }) {
   const firstWeekday = new Date(calYear, calMonth, 1).getDay();
   const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
   const today = todayStr();
@@ -18,7 +18,7 @@ export default function CalendarGrid({ calYear, calMonth, selectedDate, onSelect
         {dayCells.map((dayNumber, index) => {
           if (dayNumber === null) return <div className="cal-day empty" key={`empty-${index}`}></div>;
           const dateString = `${calYear}-${pad(calMonth + 1)}-${pad(dayNumber)}`;
-          const dayEvents = EVENTS[dateString] || [];
+          const dayEvents = eventsByDate[dateString] || [];
           const isToday = dateString === today;
           const isSelected = dateString === selectedDate;
           const shownEvents = dayEvents.slice(0, 2);
@@ -32,14 +32,14 @@ export default function CalendarGrid({ calYear, calMonth, selectedDate, onSelect
               <span className="dnum">{dayNumber}</span>
               <div className="evs">
                 {shownEvents.map((event) => (
-                  <div className={`ev-pill cat-${event.category}`} title={event.title} key={event.title}>{event.title}</div>
+                  <div className="ev-pill" title={event.title} key={event.festivalId ?? event.title}>{event.title}</div>
                 ))}
                 {hiddenEventCount > 0 && (
                   <div className="ev-more">
                     +{hiddenEventCount}
                     <div className="day-popover">
                       {dayEvents.map((event) => (
-                        <div className={`popover-item cat-${event.category}`} key={event.title}>
+                        <div className="popover-item" key={event.festivalId ?? event.title}>
                           <span className="p-dot"></span><b>{event.title}</b><span>{event.time}</span>
                         </div>
                       ))}

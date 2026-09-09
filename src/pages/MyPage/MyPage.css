@@ -72,6 +72,14 @@
 .account-chevron{color:var(--ink-faint);font-size:16px;}
 .account-logout-row:hover{color:var(--stamp);}
 
+.account-withdraw-row{display:flex;justify-content:flex-end;margin-top:10px;}
+.account-withdraw-btn{
+  background:none;border:none;padding:6px 2px;font-size:12.5px;font-weight:600;
+  color:var(--stamp);text-align:right;
+}
+.account-withdraw-btn:hover{text-decoration:underline;}
+.account-withdraw-btn:disabled{opacity:.6;text-decoration:none;}
+
 .account-points-panel{flex:0 0 340px;}
 .account-points-panel h4{font-size:14px;color:var(--primary-deep);margin:0 0 6px;}
 .account-points-current{margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);}

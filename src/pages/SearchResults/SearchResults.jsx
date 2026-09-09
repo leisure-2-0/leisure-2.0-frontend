@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
-import { CATEGORY_ICONS, POSTS, REGIONS, filterPosts, sortPosts } from '../../data/posts.js';
+import { CATEGORY_ICONS, REGIONS } from '../../data/posts.js';
+import * as postsApi from '../../api/posts.js';
+import { getErrorMessage } from '../../api/errors.js';
 import './SearchResults.css';
 
 // derived from the canonical category list so this filter can't drift out of sync with it
@@ -15,6 +17,7 @@ export default function SearchResults() {
   // typing here never touches the shared header search, and vice versa. The URL's ?q= only
   // re-seeds it when a *new* one actually arrives (e.g. a fresh search from home or 더보기) —
   // this is React's documented "adjust state during render" pattern, not a plain setState-in-effect.
+  // 참고: 백엔드 검색 API가 아직 없어서 이 검색어/지역 필터는 실제 목록에는 영향을 주지 않는다.
   const [lastSyncedSearchTermFromUrl, setLastSyncedSearchTermFromUrl] = useState(searchTermFromUrl);
   const [searchTerm, setSearchTerm] = useState(searchTermFromUrl);
   if (searchTermFromUrl !== lastSyncedSearchTermFromUrl) {
@@ -31,14 +34,65 @@ export default function SearchResults() {
     setSearchParams(trimmedSearchTerm ? { q: trimmedSearchTerm } : {});
   };
 
-  const matchedPosts = useMemo(() => {
-    const filtered = filterPosts(POSTS, { searchTerm, category: selectedCategory, region: selectedRegion });
-    return sortPosts(filtered, sortOrder);
-  }, [searchTerm, selectedCategory, selectedRegion, sortOrder]);
-
   const resetFilters = () => {
     setSelectedCategory('all');
     setSelectedRegion('all');
+  };
+
+  // 카테고리·정렬 조합별로 캐싱한다(둘러보기 피드는 커서 기반이라 페이지를 이어붙인다).
+  const [feedCache, setFeedCache] = useState({});
+  const feedKey = `${selectedCategory}:${sortOrder}`;
+  const current = feedCache[feedKey];
+  const matchedPosts = current?.items ?? [];
+  const loading = !current;
+  const error = current?.error ?? '';
+  const hasNext = current?.hasNext ?? false;
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    if (feedCache[feedKey]) return;
+    let cancelled = false;
+    postsApi
+      .getPosts({ category: postsApi.toBackendCategory(selectedCategory), sort: sortOrder.toUpperCase() })
+      .then((data) => {
+        if (cancelled) return;
+        setFeedCache((prev) => ({
+          ...prev,
+          [feedKey]: { items: data.posts.map(postsApi.toCardPost), cursor: data.nextCursor, hasNext: data.hasNext, error: null },
+        }));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setFeedCache((prev) => ({ ...prev, [feedKey]: { items: [], cursor: null, hasNext: false, error: getErrorMessage(err) } }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [feedKey, selectedCategory, sortOrder, feedCache]);
+
+  const handleLoadMore = async () => {
+    if (!hasNext || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const data = await postsApi.getPosts({
+        category: postsApi.toBackendCategory(selectedCategory),
+        sort: sortOrder.toUpperCase(),
+        cursor: current.cursor,
+      });
+      setFeedCache((prev) => ({
+        ...prev,
+        [feedKey]: {
+          items: [...prev[feedKey].items, ...data.posts.map(postsApi.toCardPost)],
+          cursor: data.nextCursor,
+          hasNext: data.hasNext,
+          error: null,
+        },
+      }));
+    } catch {
+      // 더보기 실패는 조용히 무시 — 버튼을 다시 누르면 재시도된다.
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   return (
@@ -113,15 +167,25 @@ export default function SearchResults() {
           </div>
 
           <div className="post-grid">
-            {matchedPosts.length === 0 ? (
+            {loading ? (
+              <div className="empty-state" style={{ gridColumn: '1/-1' }}><b>불러오는 중...</b></div>
+            ) : error ? (
+              <div className="empty-state" style={{ gridColumn: '1/-1' }}><b>목록을 불러오지 못했어요</b>{error}</div>
+            ) : matchedPosts.length === 0 ? (
               <div className="empty-state" style={{ gridColumn: '1/-1' }}>
                 <b>조건에 맞는 게시글이 아직 없어요</b>
                 다른 검색어나 필터를 사용해보세요.
               </div>
             ) : (
-              matchedPosts.map((post) => <PostCard post={post} key={post.title} />)
+              matchedPosts.map((post) => <PostCard post={post} key={post.id} />)
             )}
           </div>
+
+          {hasNext && (
+            <button className="load-more-btn" onClick={handleLoadMore} disabled={loadingMore}>
+              {loadingMore ? '불러오는 중...' : '더보기 →'}
+            </button>
+          )}
         </div>
       </div>
     </section>

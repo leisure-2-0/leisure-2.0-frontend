@@ -20,7 +20,12 @@ export default function LocationPickerField({ location, onChange }) {
     const geocoder = new window.kakao.maps.services.Geocoder();
     geocoder.addressSearch(query, (result, status) => {
       if (status === window.kakao.maps.services.Status.OK && result[0]) {
-        onChange({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x), address: result[0].address_name });
+        onChange({
+          lat: parseFloat(result[0].y),
+          lng: parseFloat(result[0].x),
+          address: result[0].address_name,
+          region: result[0].address?.region_2depth_name || null,
+        });
       } else {
         setSearchError('주소를 찾지 못했어요. 다른 표현으로 시도해보세요.');
       }
@@ -32,11 +37,10 @@ export default function LocationPickerField({ location, onChange }) {
     const latlng = mouseEvent.latLng;
     const geocoder = new window.kakao.maps.services.Geocoder();
     geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
-      const address =
-        status === window.kakao.maps.services.Status.OK && result[0]
-          ? result[0].road_address?.address_name || result[0].address?.address_name || ''
-          : '';
-      onChange({ lat: latlng.getLat(), lng: latlng.getLng(), address });
+      const found = status === window.kakao.maps.services.Status.OK && result[0];
+      const address = found ? result[0].road_address?.address_name || result[0].address?.address_name || '' : '';
+      const region = found ? result[0].address?.region_2depth_name || null : null;
+      onChange({ lat: latlng.getLat(), lng: latlng.getLng(), address, region });
     });
   };
 

@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
+import * as authApi from '../../api/auth.js';
+import { getErrorMessage } from '../../api/errors.js';
+import { setAccessToken } from '../../api/tokenStore.js';
 
 export default function ChangePassword() {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, initializing } = useAuth();
 
   const [form, setForm] = useState({ current: '', next: '', confirm: '' });
   const [isConfirmTouched, setIsConfirmTouched] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  if (initializing) return null;
   if (!isLoggedIn) return <Navigate to="/login" state={{ from: '/mypage/password' }} replace />;
 
   const updateField = (field) => (e) => {
@@ -18,11 +24,24 @@ export default function ChangePassword() {
   const passwordsMismatch = isConfirmTouched && form.confirm !== '' && form.confirm !== form.next;
   const canSubmit = form.current !== '' && form.next !== '' && form.next === form.confirm;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    // no backend auth wired up yet — mock success only
-    navigate('/mypage?tab=account');
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const { accessToken } = await authApi.changePassword({
+        currentPassword: form.current,
+        newPassword: form.next,
+        newPasswordConfirm: form.confirm,
+      });
+      setAccessToken(accessToken);
+      navigate('/mypage?tab=account');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -53,7 +72,8 @@ export default function ChangePassword() {
             />
           </label>
           {passwordsMismatch && <p className="auth-field-error">비밀번호가 일치하지 않아요.</p>}
-          <button type="submit" className="auth-submit" disabled={!canSubmit}>비밀번호 변경</button>
+          {error && <p className="auth-field-error">{error}</p>}
+          <button type="submit" className="auth-submit" disabled={!canSubmit || isSubmitting}>비밀번호 변경</button>
         </form>
 
         <Link to="/mypage?tab=account" className="auth-skip">← 계정 정보로 돌아가기</Link>

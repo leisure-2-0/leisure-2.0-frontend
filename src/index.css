@@ -187,6 +187,7 @@ main{max-width:1400px;margin:0 auto;padding:0 32px 60px;}
 .auth-field input.invalid{border-color:var(--stamp);}
 .auth-field input:disabled{color:var(--ink-faint);cursor:not-allowed;}
 .auth-field-error{font-size:11.5px;font-weight:600;color:var(--stamp);}
+.auth-field-hint{font-size:11.5px;font-weight:600;color:var(--primary-deep);}
 
 .auth-submit{
   margin-top:6px;background:var(--primary);color:#fff;border:none;

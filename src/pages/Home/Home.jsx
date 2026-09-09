@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
 import MiniCalendar from '../../components/MiniCalendar/MiniCalendar.jsx';
 import PostCard from '../../components/PostCard/PostCard.jsx';
-import { POSTS, REGIONS, filterPosts, sortPosts } from '../../data/posts.js';
+import { REGIONS } from '../../data/posts.js';
+import * as postsApi from '../../api/posts.js';
+import * as dashboardApi from '../../api/dashboard.js';
+import { getErrorMessage } from '../../api/errors.js';
 import './Home.css';
-
-const HOME_POST_LIMIT = 18;
 
 const CATEGORIES = [
   { category: 'all', label: '전체', icon: '✦', background: 'var(--primary-deep)', color: '#fff' },
@@ -40,11 +41,46 @@ export default function Home() {
     return REGIONS.filter((region) => region.toLowerCase().includes(normalizedSearchTerm));
   }, [normalizedSearchTerm]);
 
-  // 선택된 카테고리로 게시글 필터링 후 정렬, 최대 20개만 표시
-  const visiblePosts = useMemo(() => {
-    const categoryFiltered = filterPosts(POSTS, { category: selectedCategory });
-    return sortPosts(categoryFiltered, sortOrder).slice(0, HOME_POST_LIMIT);
-  }, [selectedCategory, sortOrder]);
+  // 탭(카테고리, 정렬) 조합별로 결과를 캐싱한다. 캐시가 없으면 로딩 중.
+  const [feedCache, setFeedCache] = useState({});
+  const feedKey = `${selectedCategory}:${sortOrder}`;
+  const cached = feedCache[feedKey];
+  const visiblePosts = cached?.items ?? [];
+  const feedLoading = !cached;
+  const feedError = cached?.error ?? '';
+
+  useEffect(() => {
+    if (feedCache[feedKey]) return;
+
+    let cancelled = false;
+    postsApi
+      .getMainFeed({ category: postsApi.toBackendCategory(selectedCategory), sort: sortOrder.toUpperCase() })
+      .then((data) => {
+        if (cancelled) return;
+        setFeedCache((prev) => ({ ...prev, [feedKey]: { items: data.map(postsApi.toCardPost), error: null } }));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setFeedCache((prev) => ({ ...prev, [feedKey]: { items: [], error: getErrorMessage(err) } }));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [feedKey, selectedCategory, sortOrder, feedCache]);
+
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    dashboardApi.getDashboardStats().then((data) => {
+      if (!cancelled) setStats(data);
+    }).catch(() => {
+      // 통계 조회 실패는 조용히 무시 — 대시보드는 부가 정보라 화면 흐름을 막지 않는다.
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 창 크기가 바뀔 때마다 미니 캘린더 패널 높이에 맞춰 지도 박스 높이 동기화
   useEffect(() => {
@@ -135,10 +171,10 @@ export default function Home() {
       </div>
 
       <div className="stat-strip">
-        <div className="stat-item"><div className="num">128</div><div className="lbl">인증된 소도시</div></div>
-        <div className="stat-item"><div className="num">8,204</div><div className="lbl">누적 인증 게시글</div></div>
-        <div className="stat-item"><div className="num">342</div><div className="lbl">이달의 신규 리뷰어</div></div>
-        <div className="stat-item"><div className="num">19</div><div className="lbl">이번 달 진행중 축제</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">인증된 소도시</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedPostCount.toLocaleString() : '-'}</div><div className="lbl">누적 인증 게시글</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.monthlyPostCount.toLocaleString() : '-'}</div><div className="lbl">이번달 게시글</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.inProgressFestivalCount.toLocaleString() : '-'}</div><div className="lbl">이번 달 진행중 축제</div></div>
       </div>
 
       <div className="home-grid">
@@ -187,13 +223,17 @@ export default function Home() {
         </div>
 
         <div className="post-grid">
-          {visiblePosts.length === 0 ? (
+          {feedLoading ? (
+            <div className="empty-state" style={{ gridColumn: '1/-1' }}><b>불러오는 중...</b></div>
+          ) : feedError ? (
+            <div className="empty-state" style={{ gridColumn: '1/-1' }}><b>목록을 불러오지 못했어요</b>{feedError}</div>
+          ) : visiblePosts.length === 0 ? (
             <div className="empty-state" style={{ gridColumn: '1/-1' }}>
               <b>조건에 맞는 게시글이 아직 없어요</b>
               이 조건의 첫 이야기를 가장 먼저 남겨보세요.
             </div>
           ) : (
-            visiblePosts.map((post) => <PostCard post={post} key={post.title} />)
+            visiblePosts.map((post) => <PostCard post={post} key={post.id} />)
           )}
         </div>
 

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import TopNav from './components/TopNav/TopNav.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import ChatFab from './components/ChatFab/ChatFab.jsx';
@@ -18,31 +18,42 @@ import ChangePassword from './pages/MyPage/ChangePassword.jsx';
 import WritePost from './pages/Write/WritePost.jsx';
 import PostDetail from './pages/PostDetail/PostDetail.jsx';
 
+function AppLayout() {
+  const location = useLocation();
+  const isFullBleedMap = location.pathname === '/map';
+
+  return (
+    <>
+      <TopNav />
+      <ChatFab />
+      <main className={isFullBleedMap ? 'main-full-bleed' : ''}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/mypage/password" element={<ChangePassword />} />
+          <Route path="/write" element={<WritePost />} />
+          <Route path="/write/:postId" element={<WritePost />} />
+          <Route path="/post/:postId" element={<PostDetail />} />
+        </Routes>
+      </main>
+      {!isFullBleedMap && <Footer />}
+      <BottomNav />
+    </>
+  );
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <SearchProvider>
         <CalendarProvider>
-          <TopNav />
-          <ChatFab />
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/mypage" element={<MyPage />} />
-              <Route path="/mypage/password" element={<ChangePassword />} />
-              <Route path="/write" element={<WritePost />} />
-              <Route path="/write/:postId" element={<WritePost />} />
-              <Route path="/post/:postId" element={<PostDetail />} />
-            </Routes>
-          </main>
-          <Footer />
-          <BottomNav />
+          <AppLayout />
         </CalendarProvider>
       </SearchProvider>
     </AuthProvider>

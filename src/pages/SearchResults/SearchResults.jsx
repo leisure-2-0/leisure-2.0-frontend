@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 import { CATEGORY_ICONS, REGIONS } from '../../data/posts.js';
 import * as postsApi from '../../api/posts.js';
+import * as searchApi from '../../api/search.js';
 import { getErrorMessage } from '../../api/errors.js';
 import './SearchResults.css';
 
 // derived from the canonical category list so this filter can't drift out of sync with it
 const CATEGORY_FILTER_OPTIONS = ['all', ...Object.keys(CATEGORY_ICONS)];
+const SEARCH_PAGE_SIZE = 15;
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,7 +19,6 @@ export default function SearchResults() {
   // typing here never touches the shared header search, and vice versa. The URL's ?q= only
   // re-seeds it when a *new* one actually arrives (e.g. a fresh search from home or 더보기) —
   // this is React's documented "adjust state during render" pattern, not a plain setState-in-effect.
-  // 참고: 백엔드 검색 API가 아직 없어서 이 검색어/지역 필터는 실제 목록에는 영향을 주지 않는다.
   const [lastSyncedSearchTermFromUrl, setLastSyncedSearchTermFromUrl] = useState(searchTermFromUrl);
   const [searchTerm, setSearchTerm] = useState(searchTermFromUrl);
   if (searchTermFromUrl !== lastSyncedSearchTermFromUrl) {
@@ -39,9 +40,16 @@ export default function SearchResults() {
     setSelectedRegion('all');
   };
 
-  // 카테고리·정렬 조합별로 캐싱한다(둘러보기 피드는 커서 기반이라 페이지를 이어붙인다).
+  // 검색어가 있으면 검색 API(오프셋 페이지네이션), 없으면 둘러보기 피드(커서 기반)를 쓴다.
+  // 지역 필터는 검색/피드 어느 쪽에도 대응하는 파라미터가 없어 실제 조회에는 반영되지 않는다.
+  const isSearching = searchTermFromUrl.trim() !== '';
+  const backendCategory = postsApi.toBackendCategory(selectedCategory);
+  const backendSort = sortOrder.toUpperCase();
+  const feedKey = isSearching
+    ? `search:${searchTermFromUrl}:${selectedCategory}:${sortOrder}`
+    : `browse:${selectedCategory}:${sortOrder}`;
+
   const [feedCache, setFeedCache] = useState({});
-  const feedKey = `${selectedCategory}:${sortOrder}`;
   const current = feedCache[feedKey];
   const matchedPosts = current?.items ?? [];
   const loading = !current;
@@ -52,42 +60,48 @@ export default function SearchResults() {
   useEffect(() => {
     if (feedCache[feedKey]) return;
     let cancelled = false;
-    postsApi
-      .getPosts({ category: postsApi.toBackendCategory(selectedCategory), sort: sortOrder.toUpperCase() })
-      .then((data) => {
+
+    const request = isSearching
+      ? searchApi.searchPosts({ searchTerm: searchTermFromUrl, category: backendCategory, sort: backendSort, page: 0, size: SEARCH_PAGE_SIZE })
+          .then((data) => ({ items: data.content.map(postsApi.toCardPost), page: 0, hasNext: data.hasNext }))
+      : postsApi.getPosts({ category: backendCategory, sort: backendSort })
+          .then((data) => ({ items: data.posts.map(postsApi.toCardPost), cursor: data.nextCursor, hasNext: data.hasNext }));
+
+    request
+      .then((result) => {
         if (cancelled) return;
-        setFeedCache((prev) => ({
-          ...prev,
-          [feedKey]: { items: data.posts.map(postsApi.toCardPost), cursor: data.nextCursor, hasNext: data.hasNext, error: null },
-        }));
+        setFeedCache((prev) => ({ ...prev, [feedKey]: { ...result, error: null } }));
       })
       .catch((err) => {
         if (cancelled) return;
-        setFeedCache((prev) => ({ ...prev, [feedKey]: { items: [], cursor: null, hasNext: false, error: getErrorMessage(err) } }));
+        setFeedCache((prev) => ({ ...prev, [feedKey]: { items: [], hasNext: false, error: getErrorMessage(err) } }));
       });
+
     return () => {
       cancelled = true;
     };
-  }, [feedKey, selectedCategory, sortOrder, feedCache]);
+  }, [feedKey, isSearching, searchTermFromUrl, backendCategory, backendSort, feedCache]);
 
   const handleLoadMore = async () => {
     if (!hasNext || loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await postsApi.getPosts({
-        category: postsApi.toBackendCategory(selectedCategory),
-        sort: sortOrder.toUpperCase(),
-        cursor: current.cursor,
-      });
-      setFeedCache((prev) => ({
-        ...prev,
-        [feedKey]: {
-          items: [...prev[feedKey].items, ...data.posts.map(postsApi.toCardPost)],
-          cursor: data.nextCursor,
-          hasNext: data.hasNext,
-          error: null,
-        },
-      }));
+      if (isSearching) {
+        const nextPage = current.page + 1;
+        const data = await searchApi.searchPosts({
+          searchTerm: searchTermFromUrl, category: backendCategory, sort: backendSort, page: nextPage, size: SEARCH_PAGE_SIZE,
+        });
+        setFeedCache((prev) => ({
+          ...prev,
+          [feedKey]: { items: [...prev[feedKey].items, ...data.content.map(postsApi.toCardPost)], page: nextPage, hasNext: data.hasNext, error: null },
+        }));
+      } else {
+        const data = await postsApi.getPosts({ category: backendCategory, sort: backendSort, cursor: current.cursor });
+        setFeedCache((prev) => ({
+          ...prev,
+          [feedKey]: { items: [...prev[feedKey].items, ...data.posts.map(postsApi.toCardPost)], cursor: data.nextCursor, hasNext: data.hasNext, error: null },
+        }));
+      }
     } catch {
       // 더보기 실패는 조용히 무시 — 버튼을 다시 누르면 재시도된다.
     } finally {
@@ -156,7 +170,7 @@ export default function SearchResults() {
 
           <div className="section-head">
             <h3>
-              {searchTerm ? `"${searchTerm}" 검색 결과` : '전체 게시글'}
+              {searchTermFromUrl ? `"${searchTermFromUrl}" 검색 결과` : '전체 게시글'}
               <span className="result-count">{matchedPosts.length}개</span>
             </h3>
             <div className="sort-toggle">

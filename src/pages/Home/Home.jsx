@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Map, CustomOverlayMap, useKakaoLoader } from 'react-kakao-maps-sdk';
 import { useSearch } from '../../context/search-context.js';
 import MiniCalendar from '../../components/MiniCalendar/MiniCalendar.jsx';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 import { REGIONS } from '../../data/posts.js';
 import * as postsApi from '../../api/posts.js';
 import * as dashboardApi from '../../api/dashboard.js';
+import * as mapApi from '../../api/map.js';
 import { getErrorMessage } from '../../api/errors.js';
+import { KAKAO_APP_KEY, KAKAO_LOADER_OPTIONS } from '../../lib/kakaoLoader.js';
 import './Home.css';
+
+const SOUTH_KOREA_CENTER = { lat: 36.5, lng: 127.8 };
 
 const CATEGORIES = [
   { category: 'all', label: '전체', icon: '✦', background: 'var(--primary-deep)', color: '#fff' },
@@ -68,6 +73,24 @@ export default function Home() {
       cancelled = true;
     };
   }, [feedKey, selectedCategory, sortOrder, feedCache]);
+
+  const [loadingKakao, kakaoLoadError] = useKakaoLoader(KAKAO_LOADER_OPTIONS);
+  const isKakaoKeyMissing = !KAKAO_APP_KEY;
+
+  const [regionPins, setRegionPins] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    mapApi.getRegionPinCounts().then((data) => {
+      if (!cancelled) setRegionPins(data);
+    }).catch(() => {
+      // 지도 미리보기는 부가 정보라 실패해도 조용히 무시한다.
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const goToRegionSearch = (region) => navigate(`/search?q=${encodeURIComponent(region)}`);
 
   const [stats, setStats] = useState(null);
   useEffect(() => {
@@ -180,11 +203,24 @@ export default function Home() {
       <div className="home-grid">
         <div className="map-box" ref={mapBoxRef}>
           <span className="map-label">📍 지역 지도 — 핀을 눌러 게시글 보기</span>
-          <div className="pin" style={{ top: '38%', left: '63%' }}><div className="dot"></div><span>강릉 12</span></div>
-          <div className="pin" style={{ top: '58%', left: '40%' }}><div className="dot"></div><span>전주 9</span></div>
-          <div className="pin" style={{ top: '74%', left: '56%' }}><div className="dot"></div><span>통영 8</span></div>
-          <div className="pin" style={{ top: '66%', left: '70%' }}><div className="dot"></div><span>여수 6</span></div>
-          <div className="pin" style={{ top: '26%', left: '47%' }}><div className="dot"></div><span>속초 5</span></div>
+          {isKakaoKeyMissing ? (
+            <div className="map-status-overlay">카카오맵 API 키가 설정되지 않았어요.</div>
+          ) : kakaoLoadError ? (
+            <div className="map-status-overlay">지도를 불러오지 못했어요.</div>
+          ) : loadingKakao ? (
+            <div className="map-status-overlay">지도를 불러오는 중...</div>
+          ) : (
+            <Map center={SOUTH_KOREA_CENTER} level={11} style={{ width: '100%', height: '100%' }}>
+              {regionPins.map((pin) => (
+                <CustomOverlayMap key={pin.region} position={{ lat: pin.centerLat, lng: pin.centerLng }} yAnchor={1} clickable>
+                  <button type="button" className="map-region-pin" onClick={() => goToRegionSearch(pin.region)}>
+                    <span className="map-region-pin-dot"></span>
+                    <span className="map-region-pin-label">{pin.region} {pin.postCount}</span>
+                  </button>
+                </CustomOverlayMap>
+              ))}
+            </Map>
+          )}
         </div>
 
         <div className="home-sidebar">

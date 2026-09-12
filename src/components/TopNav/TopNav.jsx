@@ -8,7 +8,7 @@ export default function TopNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch();
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, refreshPoints } = useAuth();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
@@ -62,7 +62,10 @@ export default function TopNav() {
                 <button
                   className="avatar"
                   style={user.avatarUrl ? { backgroundImage: `url(${user.avatarUrl})` } : undefined}
-                  onClick={() => setIsProfileMenuOpen((open) => !open)}
+                  onClick={() => {
+                    setIsProfileMenuOpen((open) => !open);
+                    refreshPoints();
+                  }}
                   title="프로필"
                   aria-label="프로필 메뉴 열기"
                 ></button>
@@ -80,7 +83,7 @@ export default function TopNav() {
                       </div>
                     </div>
 
-                    <div className="profile-menu-points">⬡ {user.points}</div>
+                    <div className="profile-menu-points">⬡ {user.points ?? 0}</div>
 
                     <div className="profile-menu-links">
                       <button className="profile-menu-link" onClick={() => goToMyPage()}>내 게시글</button>

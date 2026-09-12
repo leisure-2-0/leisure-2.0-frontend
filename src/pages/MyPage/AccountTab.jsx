@@ -1,14 +1,19 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
 import * as authApi from '../../api/auth.js';
 import { getErrorMessage } from '../../api/errors.js';
-import { POINT_HISTORY } from '../../data/mypage.js';
+// import { POINT_HISTORY } from '../../data/mypage.js'; // 적립 내역 조회 API가 아직 없어 비활성화
 
 export default function AccountTab() {
   const navigate = useNavigate();
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, logout, refreshPoints } = useAuth();
   const photoInputRef = useRef(null);
+
+  useEffect(() => {
+    refreshPoints();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isEditing, setIsEditing] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState(user.nickname);
@@ -156,18 +161,9 @@ export default function AccountTab() {
 
       <div className="panel account-points-panel">
         <h4>포인트 내역</h4>
-        <p className="account-points-current">현재 <b>{user.points}</b> 보유중</p>
-        <ul className="points-history-list">
-          {POINT_HISTORY.map((item) => (
-            <li className="points-history-row" key={`${item.label}-${item.date}`}>
-              <div className="points-history-info">
-                <span className="points-history-label">{item.label}</span>
-                <span className="points-history-date">{item.date.slice(5).replace('-', '.')}</span>
-              </div>
-              <span className="points-history-amount">+{item.points}P</span>
-            </li>
-          ))}
-        </ul>
+        <p className="account-points-current">현재 <b>{user.points ?? 0}</b> 보유중</p>
+        {/* 적립 내역 조회 API가 아직 없어 목록 대신 안내 문구만 표시 */}
+        <div className="empty-state"><b>적립 내역은 준비 중이에요</b>곧 자세한 내역을 볼 수 있어요.</div>
       </div>
     </div>
   );

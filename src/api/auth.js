@@ -28,6 +28,10 @@ export function getMyProfile() {
   return apiClient.get('/members/me').then((res) => res.data.data);
 }
 
+export function getPoints() {
+  return apiClient.get('/members/me/points').then((res) => res.data.data.point);
+}
+
 export function changeProfile({ nickname, profileImageUrl }) {
   return apiClient.patch('/members/me', { nickname, profileImageUrl }).then((res) => res.data.data);
 }

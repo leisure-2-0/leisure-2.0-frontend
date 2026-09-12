@@ -25,6 +25,7 @@ export function toBackendCategory(koreanLabel) {
 }
 
 export const CALENDAR_CATEGORIES = Object.keys(KOREAN_TO_CATEGORY);
+export const BACKEND_CATEGORIES = Object.values(KOREAN_TO_CATEGORY);
 
 function parseISODate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -51,7 +52,7 @@ export function buildDayEventsMap(festivals, year, month) {
     for (const d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
       const key = formatDate(d);
       if (!map[key]) map[key] = [];
-      map[key].push({ title: f.name, time: f.eventTime, festivalId: f.festivalId });
+      map[key].push({ title: f.name, time: f.eventTime, festivalId: f.festivalId, category: f.category });
     }
   });
 

@@ -29,10 +29,17 @@ export default function CalendarPage() {
   useEffect(() => {
     if (monthCache[monthKey]) return;
     let cancelled = false;
-    festivalsApi
-      .getMonthlyFestivals({ year: calYear, month: calMonth + 1, category: backendCategory })
-      .then((data) => {
-        if (!cancelled) setMonthCache((prev) => ({ ...prev, [monthKey]: data }));
+    // 월별 응답엔 카테고리가 없어 색상 구분을 못 하므로, 카테고리별로 나눠 요청해 직접 태그를 붙인다.
+    const categoriesToFetch = backendCategory ? [backendCategory] : festivalsApi.BACKEND_CATEGORIES;
+    Promise.all(
+      categoriesToFetch.map((category) =>
+        festivalsApi
+          .getMonthlyFestivals({ year: calYear, month: calMonth + 1, category })
+          .then((data) => data.map((f) => ({ ...f, category })))
+      )
+    )
+      .then((results) => {
+        if (!cancelled) setMonthCache((prev) => ({ ...prev, [monthKey]: results.flat() }));
       })
       .catch(() => {
         if (!cancelled) setMonthCache((prev) => ({ ...prev, [monthKey]: [] }));
@@ -107,7 +114,7 @@ export default function CalendarPage() {
         <TopFestivalList />
       </div>
 
-      <DayDetail selectedDate={effectiveDate} events={detailEvents} loading={dayLoading} />
+      <DayDetail key={dayKey} selectedDate={effectiveDate} events={detailEvents} loading={dayLoading} />
     </section>
   );
 }

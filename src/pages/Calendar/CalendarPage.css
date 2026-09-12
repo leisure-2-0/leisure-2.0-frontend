@@ -27,24 +27,31 @@
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   background:var(--stamp-pale);color:var(--stamp);
 }
-.ev-pill.cat-행사{background:var(--primary-pale);color:var(--primary-deep);}
-.ev-pill.cat-계절{background:var(--accent-pale);color:#8A6B2E;}
+.ev-pill.cat-FESTIVAL{background:var(--primary-pale);color:var(--primary-deep);}
+.ev-pill.cat-PERFORMANCE{background:var(--accent-pale);color:#8A6B2E;}
+.ev-pill.cat-EVENT{background:var(--stamp-pale);color:var(--stamp);}
 .ev-more{
-  font-size:10px;color:var(--ink-faint);font-weight:700;padding:1px 6px;position:relative;
+  font-size:10px;color:var(--ink-faint);font-weight:700;padding:4px 10px;margin:-3px -4px;position:relative;
 }
 .day-popover{
-  display:none;position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:6px;
-  min-width:200px;max-width:260px;background:var(--surface);border:1px solid var(--line);
-  border-radius:10px;box-shadow:var(--shadow-md);padding:10px;z-index:30;text-align:left;
+  /* margin-top 대신 padding-top으로 여백을 줘서 트리거~팝업 사이에 호버가 끊기는 빈 틈이 안 생기게 함 */
+  display:none;position:absolute;left:50%;top:100%;transform:translateX(-50%);
+  min-width:200px;max-width:260px;max-height:300px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;box-shadow:var(--shadow-md);padding:16px 10px 10px;margin-top:0;z-index:30;text-align:left;
+  scrollbar-width:thin;scrollbar-color:var(--primary) transparent;
 }
+.day-popover::-webkit-scrollbar{width:5px;}
+.day-popover::-webkit-scrollbar-track{background:transparent;}
+.day-popover::-webkit-scrollbar-thumb{background:var(--primary);border-radius:999px;}
+.day-popover::-webkit-scrollbar-button{display:none;width:0;height:0;}
 .ev-more:hover .day-popover{display:block;}
 .popover-item{display:flex;align-items:baseline;gap:6px;padding:5px 0;border-bottom:1px dashed var(--line);white-space:normal;}
 .popover-item:last-child{border:none;}
 .popover-item .p-dot{width:7px;height:7px;border-radius:50%;background:var(--stamp);flex-shrink:0;}
-.popover-item.cat-행사 .p-dot{background:var(--primary);}
-.popover-item.cat-계절 .p-dot{background:var(--accent);}
+.popover-item.cat-FESTIVAL .p-dot{background:var(--primary);}
+.popover-item.cat-PERFORMANCE .p-dot{background:var(--accent);}
+.popover-item.cat-EVENT .p-dot{background:var(--stamp);}
 .popover-item b{font-size:12px;color:var(--ink);font-weight:600;line-height:1.4;}
-.popover-item span{font-size:10.5px;color:var(--ink-faint);white-space:nowrap;margin-left:auto;font-family:'IBM Plex Mono',monospace;}
 
 .top-fest-list{display:flex;flex-direction:column;gap:12px;}
 .fest-card{display:flex;align-items:center;gap:11px;background:var(--surface-alt);border:1px solid var(--line);border-radius:11px;padding:10px;}
@@ -55,14 +62,22 @@
 .fest-card .dday{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--accent);font-weight:700;white-space:nowrap;flex-shrink:0;}
 
 .day-detail{margin-top:22px;}
-.detail-cards{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;}
+.day-detail-pagination{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);}
+.day-detail-pagination button{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:26px;height:26px;font-size:13px;color:var(--ink-soft);}
+.day-detail-pagination button:hover:not(:disabled){border-color:var(--primary);color:var(--primary-deep);}
+.day-detail-pagination button:disabled{opacity:.4;cursor:default;}
+.detail-cards{display:flex;flex-direction:column;gap:12px;}
 .detail-card{
-  min-width:240px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:15px;flex-shrink:0;
+  width:100%;max-width:100%;box-sizing:border-box;
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:15px;
 }
 .detail-card .cat{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--stamp);letter-spacing:.05em;margin-bottom:6px;}
 .detail-card h5{margin:0 0 6px;font-size:14.5px;}
 .detail-card .meta2{font-size:12px;color:var(--ink-soft);margin-bottom:8px;}
-.detail-card p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px;}
+.detail-card p{
+  font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;
+}
 .detail-card .more{font-size:12.5px;color:var(--primary);font-weight:700;}
 
 @media (max-width:1050px){

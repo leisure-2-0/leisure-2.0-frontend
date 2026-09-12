@@ -18,10 +18,13 @@ export default function TopFestivalList() {
   }, []);
 
   const today = new Date();
-  const festivalList = (festivals ?? []).map((f) => ({
-    ...f,
-    daysUntil: Math.ceil((new Date(f.eventStartDate) - today) / 86400000),
-  }));
+  const festivalList = (festivals ?? [])
+    .map((f) => ({
+      ...f,
+      daysUntil: Math.ceil((new Date(f.eventStartDate) - today) / 86400000),
+    }))
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+    .slice(0, 7);
 
   return (
     <div className="panel">

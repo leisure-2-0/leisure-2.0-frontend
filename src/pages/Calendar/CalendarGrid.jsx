@@ -32,15 +32,22 @@ export default function CalendarGrid({ calYear, calMonth, selectedDate, onSelect
               <span className="dnum">{dayNumber}</span>
               <div className="evs">
                 {shownEvents.map((event) => (
-                  <div className="ev-pill" title={event.title} key={event.festivalId ?? event.title}>{event.title}</div>
+                  <div
+                    className={'ev-pill' + (event.category ? ' cat-' + event.category : '')}
+                    title={event.title}
+                    key={event.festivalId ?? event.title}
+                  >{event.title}</div>
                 ))}
                 {hiddenEventCount > 0 && (
                   <div className="ev-more">
                     +{hiddenEventCount}
                     <div className="day-popover">
                       {dayEvents.map((event) => (
-                        <div className="popover-item" key={event.festivalId ?? event.title}>
-                          <span className="p-dot"></span><b>{event.title}</b><span>{event.time}</span>
+                        <div
+                          className={'popover-item' + (event.category ? ' cat-' + event.category : '')}
+                          key={event.festivalId ?? event.title}
+                        >
+                          <span className="p-dot"></span><b>{event.title}</b>
                         </div>
                       ))}
                     </div>

@@ -2,6 +2,16 @@ import { useState } from 'react';
 
 const PAGE_SIZE = 3;
 
+// homepageUrl 원본엔 "공식 홈페이지 https://..." 같은 라벨이 섞여있거나 프로토콜이 아예 없는
+// 값(www.example.kr)이 섞여 있어, 그대로 href에 쓰면 우리 사이트 기준 상대경로로 붙어버린다.
+function toExternalUrl(raw) {
+  if (!raw) return null;
+  const found = raw.match(/https?:\/\/\S+/);
+  if (found) return found[0];
+  const trimmed = raw.trim();
+  return trimmed ? `https://${trimmed}` : null;
+}
+
 export default function DayDetail({ selectedDate, events, loading }) {
   const [page, setPage] = useState(0);
 
@@ -32,19 +42,22 @@ export default function DayDetail({ selectedDate, events, loading }) {
         </div>
       ) : (
         <div className="detail-cards">
-          {pagedEvents.map((event) => (
-            <div className="detail-card" key={event.title}>
-              <div className="cat">{event.category} · {event.region}</div>
-              <h5>{event.title}</h5>
-              <div className="meta2">{event.time}</div>
-              <p>{event.description}</p>
-              {event.homepageUrl ? (
-                <a className="more" href={event.homepageUrl} target="_blank" rel="noreferrer">자세히 보기 →</a>
-              ) : (
-                <span className="more">자세히 보기 →</span>
-              )}
-            </div>
-          ))}
+          {pagedEvents.map((event) => {
+            const externalUrl = toExternalUrl(event.homepageUrl);
+            return (
+              <div className="detail-card" key={event.title}>
+                <div className="cat">{event.category} · {event.region}</div>
+                <h5>{event.title}</h5>
+                <div className="meta2">{event.time}</div>
+                <p>{event.description}</p>
+                {externalUrl ? (
+                  <a className="more" href={externalUrl} target="_blank" rel="noopener noreferrer">자세히 보기 →</a>
+                ) : (
+                  <span className="more">자세히 보기 →</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

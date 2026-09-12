@@ -23,7 +23,7 @@ function toRequestFields(s) {
     location: s.location
       ? {
           region: s.location.region ?? null,
-          placeName: null,
+          placeName: s.location.placeName ?? null,
           address: s.location.address ?? null,
           latitude: s.location.lat,
           longitude: s.location.lng,
@@ -76,7 +76,13 @@ export default function WritePost() {
         setTags(data.tags || []);
         setLocation(
           data.location
-            ? { lat: data.location.latitude, lng: data.location.longitude, address: data.location.address, region: data.location.region }
+            ? {
+                lat: data.location.latitude,
+                lng: data.location.longitude,
+                address: data.location.address,
+                placeName: data.location.placeName,
+                region: data.location.region,
+              }
             : null
         );
         setBodyHtml(data.content || '');
@@ -177,7 +183,13 @@ export default function WritePost() {
       setTags(data.tags || []);
       setLocation(
         data.location
-          ? { lat: data.location.latitude, lng: data.location.longitude, address: data.location.address, region: data.location.region }
+          ? {
+              lat: data.location.latitude,
+              lng: data.location.longitude,
+              address: data.location.address,
+              placeName: data.location.placeName,
+              region: data.location.region,
+            }
           : null
       );
       setBodyHtml(data.content || '');

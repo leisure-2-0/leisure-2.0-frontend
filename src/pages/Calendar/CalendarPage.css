@@ -31,13 +31,19 @@
 .ev-pill.cat-PERFORMANCE{background:var(--accent-pale);color:#8A6B2E;}
 .ev-pill.cat-EVENT{background:var(--stamp-pale);color:var(--stamp);}
 .ev-more{
-  font-size:10px;color:var(--ink-faint);font-weight:700;padding:1px 6px;position:relative;
+  font-size:10px;color:var(--ink-faint);font-weight:700;padding:4px 10px;margin:-3px -4px;position:relative;
 }
 .day-popover{
-  display:none;position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:6px;
-  min-width:200px;max-width:260px;background:var(--surface);border:1px solid var(--line);
-  border-radius:10px;box-shadow:var(--shadow-md);padding:10px;z-index:30;text-align:left;
+  /* margin-top 대신 padding-top으로 여백을 줘서 트리거~팝업 사이에 호버가 끊기는 빈 틈이 안 생기게 함 */
+  display:none;position:absolute;left:50%;top:100%;transform:translateX(-50%);
+  min-width:200px;max-width:260px;max-height:300px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;box-shadow:var(--shadow-md);padding:16px 10px 10px;margin-top:0;z-index:30;text-align:left;
+  scrollbar-width:thin;scrollbar-color:var(--primary) transparent;
 }
+.day-popover::-webkit-scrollbar{width:5px;}
+.day-popover::-webkit-scrollbar-track{background:transparent;}
+.day-popover::-webkit-scrollbar-thumb{background:var(--primary);border-radius:999px;}
+.day-popover::-webkit-scrollbar-button{display:none;width:0;height:0;}
 .ev-more:hover .day-popover{display:block;}
 .popover-item{display:flex;align-items:baseline;gap:6px;padding:5px 0;border-bottom:1px dashed var(--line);white-space:normal;}
 .popover-item:last-child{border:none;}

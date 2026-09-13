@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Map as KakaoMap, MapMarker, useKakaoLoader } from 'react-kakao-maps-sdk';
 import Thumbnail from '../../components/Thumbnail/Thumbnail.jsx';
 import { HeartIcon, BookmarkIcon, EditIcon, TrashIcon } from '../../components/Icons/Icons.jsx';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import { useAuth } from '../../context/auth-context.js';
+import { KAKAO_APP_KEY, KAKAO_LOADER_OPTIONS } from '../../lib/kakaoLoader.js';
 import * as postsApi from '../../api/posts.js';
 import { getErrorMessage } from '../../api/errors.js';
 import './PostDetail.css';
@@ -25,6 +27,7 @@ export default function PostDetail() {
   const [isLikeBusy, setIsLikeBusy] = useState(false);
   const [isBookmarkBusy, setIsBookmarkBusy] = useState(false);
   const [isDeleteBusy, setIsDeleteBusy] = useState(false);
+  const [kakaoLoading, kakaoLoadError] = useKakaoLoader(KAKAO_LOADER_OPTIONS);
 
   useEffect(() => {
     if (postsById[postId]) return;
@@ -146,8 +149,31 @@ export default function PostDetail() {
 
       {post.location && (
         <div className="post-detail-location">
-          <span className="post-detail-location-label">위치</span>
-          <p>{post.location.placeName} {post.location.address}</p>
+          <div className="post-detail-location-head">
+            <span className="post-detail-location-label">위치</span>
+            <p>{post.location.placeName} {post.location.address}</p>
+          </div>
+          {post.location.latitude != null && post.location.longitude != null && (
+            <div className="post-detail-map">
+              {!KAKAO_APP_KEY ? (
+                <div className="map-status-overlay">카카오맵 API 키가 설정되지 않았어요.</div>
+              ) : kakaoLoadError ? (
+                <div className="map-status-overlay">지도를 불러오지 못했어요.</div>
+              ) : kakaoLoading ? (
+                <div className="map-status-overlay">지도를 불러오는 중...</div>
+              ) : (
+                <KakaoMap
+                  center={{ lat: post.location.latitude, lng: post.location.longitude }}
+                  level={4}
+                  draggable={false}
+                  zoomable={false}
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <MapMarker position={{ lat: post.location.latitude, lng: post.location.longitude }} />
+                </KakaoMap>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -17,7 +17,8 @@ export default function TagInput({ tags, onChange, maxTags = 10 }) {
   const removeTag = (tag) => onChange(tags.filter((t) => t !== tag));
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    // 태그엔 보통 스페이스바 대신 #해시_태그 처럼 언더스코어를 쓰므로, 스페이스바도 Enter처럼 태그를 확정한다.
+    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault();
       commitDraft();
     } else if (e.key === 'Backspace' && draft === '' && tags.length > 0) {
@@ -41,7 +42,7 @@ export default function TagInput({ tags, onChange, maxTags = 10 }) {
             atLimit
               ? '태그는 최대 10개까지 추가할 수 있어요'
               : tags.length === 0
-                ? '태그를 입력하고 Enter (예: 혼자여행)'
+                ? '태그를 입력하고 Enter나 스페이스바 (예: 혼자여행)'
                 : '태그 추가'
           }
           value={draft}

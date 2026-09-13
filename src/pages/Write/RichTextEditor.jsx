@@ -22,10 +22,15 @@ const LIST_BUTTONS = [
   { key: 'blockquote', label: '❝ 인용', run: (editor) => editor.chain().focus().toggleBlockquote().run() },
 ];
 
-const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate }, ref) {
+const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content }, ref) {
   const imageInputRef = useRef(null);
 
   const editor = useEditor({
+    // 부모가 비동기로 불러온 기존 글(수정 모드)을 마운트 시점부터 반영한다.
+    // WritePost가 로딩 중엔 이 컴포넌트를 아예 렌더링하지 않다가 데이터가 준비된 뒤에만
+    // 마운트하므로, 여기서는 최초 1회만 쓰이면 되고 이후 리렌더에서 content가 바뀌어도
+    // (편집 중 상태 갱신 등) 에디터를 다시 만들지 않는다.
+    content: content || '',
     extensions: [
       StarterKit,
       Image,

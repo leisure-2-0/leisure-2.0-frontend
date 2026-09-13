@@ -87,7 +87,8 @@ export default function WritePost() {
         );
         setBodyHtml(data.content || '');
         setIsBodyEmpty(!data.content);
-        editorRef.current?.setContent(data.content || '');
+        // RichTextEditor는 isLoadingPost가 풀린 뒤에야 처음 마운트되므로, 그때 bodyHtml을
+        // 초기 content prop으로 받아 반영한다 (아직 마운트 전이라 editorRef로는 못 건드림).
       })
       .catch(() => {
         if (!cancelled) setLoadFailed(true);
@@ -260,7 +261,7 @@ export default function WritePost() {
             required
           />
 
-          <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} />
+          <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} content={bodyHtml} />
         </div>
 
         <div className="auth-field">

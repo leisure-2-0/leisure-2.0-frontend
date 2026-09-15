@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
-import { CATEGORY_ICONS, REGIONS } from '../../data/posts.js';
+import { CATEGORY_ICONS } from '../../data/posts.js';
+import { REGION_HIERARCHY, toRegionSearchTerm } from '../../data/regions.js';
 import * as postsApi from '../../api/posts.js';
 import * as searchApi from '../../api/search.js';
 import { getErrorMessage } from '../../api/errors.js';
@@ -27,21 +28,36 @@ export default function SearchResults() {
   }
 
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSido, setSelectedSido] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState('latest');
 
-  const applySearchTermToUrl = () => {
-    const trimmedSearchTerm = searchTerm.trim();
-    setSearchParams(trimmedSearchTerm ? { q: trimmedSearchTerm } : {});
+  const runSearch = (term) => {
+    setSearchTerm(term);
+    setSearchParams(term.trim() ? { q: term.trim() } : {});
+  };
+
+  const applySearchTermToUrl = () => runSearch(searchTerm);
+
+  const selectRegion = (districtName) => {
+    setSelectedRegion(districtName);
+    runSearch(toRegionSearchTerm(districtName));
   };
 
   const resetFilters = () => {
     setSelectedCategory('all');
+    setSelectedSido(null);
+    setSelectedCity(null);
     setSelectedRegion('all');
+    runSearch('');
   };
 
   // 검색어가 있으면 검색 API(오프셋 페이지네이션), 없으면 둘러보기 피드(커서 기반)를 쓴다.
-  // 지역 필터는 검색/피드 어느 쪽에도 대응하는 파라미터가 없어 실제 조회에는 반영되지 않는다.
+  // 지역 전용 필터 파라미터가 백엔드에 없어서(GET /posts, GET /searches 둘 다), 지역 선택은
+  // 검색창에 지역명을 넣고 검색을 실행하는 방식으로 임시 구현한다 — GET /searches가 이미
+  // region.text 필드를 매칭하므로 실제로 해당 지역 글만 걸러진다. 정식 region 파라미터가
+  // 생기면 이 우회를 걷어내고 selectedRegion을 직접 쿼리 파라미터로 넘기도록 바꿀 것.
   const isSearching = searchTermFromUrl.trim() !== '';
   const backendCategory = postsApi.toBackendCategory(selectedCategory);
   const backendSort = sortOrder.toUpperCase();
@@ -134,20 +150,74 @@ export default function SearchResults() {
             <h4>지역</h4>
             <div className="filter-option-list">
               <button
-                className={'filter-option' + (selectedRegion === 'all' ? ' active' : '')}
-                onClick={() => setSelectedRegion('all')}
+                className={'filter-option' + (!selectedSido && selectedRegion === 'all' ? ' active' : '')}
+                onClick={() => { setSelectedSido(null); setSelectedRegion('all'); runSearch(''); }}
               >
                 전체
               </button>
-              {REGIONS.map((region) => (
-                <button
-                  key={region}
-                  className={'filter-option' + (selectedRegion === region ? ' active' : '')}
-                  onClick={() => setSelectedRegion(region)}
-                >
-                  {region}
-                </button>
-              ))}
+              {REGION_HIERARCHY.map((sido) => {
+                const isSidoOpen = selectedSido === sido.name;
+                return (
+                  <div className="region-filter-sido" key={sido.name}>
+                    <button
+                      className={'filter-option region-filter-sido-toggle' + (isSidoOpen ? ' open' : '')}
+                      onClick={() => { setSelectedSido(isSidoOpen ? null : sido.name); setSelectedCity(null); }}
+                    >
+                      <span className="region-filter-caret">›</span>
+                      {sido.name}
+                    </button>
+                    {isSidoOpen && (
+                      <div className="filter-option-list filter-option-list-sub">
+                        {sido.districts.map((district) => {
+                          // 구가 나뉜 시("수원시" 등)는 {name, wards} 객체, 그 외는 문자열 그대로
+                          if (typeof district === 'string') {
+                            return (
+                              <button
+                                key={district}
+                                className={'filter-option' + (selectedRegion === district ? ' active' : '')}
+                                onClick={() => selectRegion(district)}
+                              >
+                                {district}
+                              </button>
+                            );
+                          }
+                          const isCityOpen = selectedCity === district.name;
+                          return (
+                            <div className="region-filter-city" key={district.name}>
+                              <button
+                                className={'filter-option region-filter-sido-toggle' + (isCityOpen ? ' open' : '')}
+                                onClick={() => setSelectedCity(isCityOpen ? null : district.name)}
+                              >
+                                <span className="region-filter-caret">›</span>
+                                {district.name}
+                              </button>
+                              {isCityOpen && (
+                                <div className="filter-option-list filter-option-list-sub">
+                                  <button
+                                    className={'filter-option' + (selectedRegion === district.name ? ' active' : '')}
+                                    onClick={() => selectRegion(district.name)}
+                                  >
+                                    {district.name} 전체
+                                  </button>
+                                  {district.wards.map((ward) => (
+                                    <button
+                                      key={ward}
+                                      className={'filter-option' + (selectedRegion === ward ? ' active' : '')}
+                                      onClick={() => selectRegion(ward)}
+                                    >
+                                      {ward}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -22,18 +22,29 @@ const LIST_BUTTONS = [
   { key: 'blockquote', label: '❝ 인용', run: (editor) => editor.chain().focus().toggleBlockquote().run() },
 ];
 
-const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate }, ref) {
+const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content }, ref) {
   const imageInputRef = useRef(null);
 
+  // 본문 글자수(HTML 태그 제외한 순수 텍스트 길이)를 title/isEmpty와 함께 부모에 알린다.
+  // onCreate에서도 호출해야, 수정 모드처럼 기존 글이 마운트 시점부터 채워지는 경우에도
+  // 사용자가 타이핑하기 전부터 글자수가 정확히 표시된다(onUpdate는 이후 편집에만 반응함).
+  const notifyUpdate = useCallback((editorInstance) => {
+    onUpdate?.({ html: editorInstance.getHTML(), isEmpty: editorInstance.isEmpty, length: editorInstance.getText().length });
+  }, [onUpdate]);
+
   const editor = useEditor({
+    // 부모가 비동기로 불러온 기존 글(수정 모드)을 마운트 시점부터 반영한다.
+    // WritePost가 로딩 중엔 이 컴포넌트를 아예 렌더링하지 않다가 데이터가 준비된 뒤에만
+    // 마운트하므로, 여기서는 최초 1회만 쓰이면 되고 이후 리렌더에서 content가 바뀌어도
+    // (편집 중 상태 갱신 등) 에디터를 다시 만들지 않는다.
+    content: content || '',
     extensions: [
       StarterKit,
       Image,
       Placeholder.configure({ placeholder: '어떤 이야기를 나누고 싶으신가요? 사진은 툴바의 사진 버튼으로 중간에 넣을 수 있어요.' }),
     ],
-    onUpdate: ({ editor }) => {
-      onUpdate?.({ html: editor.getHTML(), isEmpty: editor.isEmpty });
-    },
+    onCreate: ({ editor }) => notifyUpdate(editor),
+    onUpdate: ({ editor }) => notifyUpdate(editor),
   });
 
   // lets the parent load a saved draft's content into an already-mounted editor
@@ -41,9 +52,9 @@ const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate }, ref) {
     setContent: (html) => {
       if (!editor) return;
       editor.commands.setContent(html || '');
-      onUpdate?.({ html: editor.getHTML(), isEmpty: editor.isEmpty });
+      notifyUpdate(editor);
     },
-  }), [editor, onUpdate]);
+  }), [editor, notifyUpdate]);
 
   // Tiptap v3 doesn't re-render on every transaction by default, so toolbar "active" state
   // needs its own subscription — otherwise buttons like Bold never visually toggle.

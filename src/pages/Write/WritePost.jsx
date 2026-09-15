@@ -13,6 +13,9 @@ import './WritePost.css';
 
 const CATEGORY_OPTIONS = postsApi.WRITABLE_CATEGORIES;
 const AUTOSAVE_INTERVAL_MS = 60000;
+// AI 임베딩이 청킹 없이 게시글 하나를 통째로 벡터화하고, 답변 생성 프롬프트도 문서 여러 개를
+// 그대로 이어붙이는 구조라 본문이 너무 길면 의미가 흐려지거나 프롬프트가 넘칠 수 있어 제한한다.
+const MAX_BODY_LENGTH = 2000;
 
 function toRequestFields(s) {
   return {
@@ -45,6 +48,7 @@ export default function WritePost() {
   const [tags, setTags] = useState([]);
   const [bodyHtml, setBodyHtml] = useState('');
   const [isBodyEmpty, setIsBodyEmpty] = useState(true);
+  const [bodyLength, setBodyLength] = useState(0);
 
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [drafts, setDrafts] = useState([]);
@@ -87,7 +91,8 @@ export default function WritePost() {
         );
         setBodyHtml(data.content || '');
         setIsBodyEmpty(!data.content);
-        editorRef.current?.setContent(data.content || '');
+        // RichTextEditor는 isLoadingPost가 풀린 뒤에야 처음 마운트되므로, 그때 bodyHtml을
+        // 초기 content prop으로 받아 반영한다 (아직 마운트 전이라 editorRef로는 못 건드림).
       })
       .catch(() => {
         if (!cancelled) setLoadFailed(true);
@@ -138,11 +143,13 @@ export default function WritePost() {
   if (isEditMode && loadFailed) return <Navigate to="/mypage?tab=posts" replace />;
   if (isEditMode && isLoadingPost) return <section className="page write-page"><p>불러오는 중...</p></section>;
 
-  const canSubmit = title.trim() !== '' && !isBodyEmpty;
+  const isOverBodyLimit = bodyLength > MAX_BODY_LENGTH;
+  const canSubmit = title.trim() !== '' && !isBodyEmpty && !isOverBodyLimit;
 
-  const handleEditorUpdate = ({ html, isEmpty }) => {
+  const handleEditorUpdate = ({ html, isEmpty, length }) => {
     setBodyHtml(html);
     setIsBodyEmpty(isEmpty);
+    setBodyLength(length);
   };
 
   const handleSaveDraft = async () => {
@@ -260,7 +267,10 @@ export default function WritePost() {
             required
           />
 
-          <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} />
+          <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} content={bodyHtml} />
+          <div className={'write-body-counter' + (isOverBodyLimit ? ' over' : '')}>
+            {bodyLength.toLocaleString()} / {MAX_BODY_LENGTH.toLocaleString()}자
+          </div>
         </div>
 
         <div className="auth-field">

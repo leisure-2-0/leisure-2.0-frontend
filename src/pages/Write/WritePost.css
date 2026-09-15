@@ -16,6 +16,12 @@
 .write-title-input::placeholder{color:var(--ink-faint);}
 .write-title-input:focus{outline:none;}
 
+.write-body-counter{
+  text-align:right;padding:8px 22px 14px;font-size:11.5px;font-family:'IBM Plex Mono',monospace;
+  color:var(--ink-faint);border-top:1px solid var(--line);
+}
+.write-body-counter.over{color:var(--stamp);font-weight:700;}
+
 /* the cover image gets its own separate card, sitting above the title/editor card */
 .cover-image-field{
   position:relative;

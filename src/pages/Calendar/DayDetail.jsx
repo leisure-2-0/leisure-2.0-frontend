@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 6;
 
 // homepageUrl 원본엔 "공식 홈페이지 https://..." 같은 라벨이 섞여있거나 프로토콜이 아예 없는
 // 값(www.example.kr)이 섞여 있어, 그대로 href에 쓰면 우리 사이트 기준 상대경로로 붙어버린다.

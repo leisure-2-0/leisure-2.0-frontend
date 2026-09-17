@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Map as KakaoMap, MapMarker, useKakaoLoader } from 'react-kakao-maps-sdk';
 import Thumbnail from '../../components/Thumbnail/Thumbnail.jsx';
@@ -32,22 +33,21 @@ export default function PostDetail() {
   useEffect(() => {
     if (postsById[postId]) return;
 
-    let cancelled = false;
+    const controller = new AbortController();
     postsApi
-      .getPostDetail(postId)
+      .getPostDetail(postId, { signal: controller.signal })
       .then((data) => {
-        if (cancelled) return;
         setPostsById((prev) => ({ ...prev, [postId]: { data, error: null } }));
         setIsLiked(data.isLiked);
         setIsBookmarked(data.isBookmarked);
       })
       .catch((err) => {
-        if (cancelled) return;
+        if (axios.isCancel(err)) return;
         setPostsById((prev) => ({ ...prev, [postId]: { data: null, error: getErrorMessage(err) } }));
       });
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [postId, postsById]);
 

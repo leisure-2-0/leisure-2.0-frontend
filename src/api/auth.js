@@ -8,8 +8,8 @@ export function logout() {
   return apiClient.delete('/auth');
 }
 
-export function reissue() {
-  return apiClient.post('/auth/refresh').then((res) => res.data.data);
+export function reissue({ signal } = {}) {
+  return apiClient.post('/auth/refresh', null, { signal }).then((res) => res.data.data);
 }
 
 export function signUp({ email, password, passwordCheck, nickname }) {

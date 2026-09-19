@@ -11,17 +11,6 @@ const PROMPT_CHIPS = [
 
 const CHAT_HISTORY = ['통영 여행 준비', '가을 축제 추천', '담양 카페 리스트'];
 
-const FOLLOW_UP_SUGGESTIONS = [
-  '주차 가능한 곳으로 다시 추천해줘',
-  '근처 숙소도 같이 알려줘',
-];
-
-const PLACE_RECOMMENDATIONS = [
-  { variant: 1, title: '안목해변 뷰 로컬 카페', meta: '강릉 · 맛집' },
-  { variant: 3, title: '구도심 골목 원두집', meta: '강릉 · 맛집' },
-  { variant: 2, title: '중앙시장 뒷골목 게스트하우스', meta: '강릉 · 숙소' },
-];
-
 const CANNED_REPLIES = [
   {
     text: '말씀하신 조건에 맞는 인증 게시글을 찾아볼게요. 잠시만요.',
@@ -125,11 +114,6 @@ export default function Chat() {
             ))}
           </div>
           <div className="chat-input-bar">
-            <div className="chat-suggest">
-              {FOLLOW_UP_SUGGESTIONS.map((suggestion) => (
-                <button className="sugg" key={suggestion} onClick={() => sendMessage(suggestion)}>{suggestion}</button>
-              ))}
-            </div>
             <div className="input-row">
               <input
                 type="text"
@@ -139,24 +123,6 @@ export default function Chat() {
                 onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(inputValue); }}
               />
               <button className="send-btn" onClick={() => sendMessage(inputValue)}>보내기</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="chat-right">
-          <div className="panel">
-            <h4 style={{ fontSize: 12.5, color: 'var(--ink-soft)', margin: '2px 0 12px' }}>대화 기반 추천 장소</h4>
-            {PLACE_RECOMMENDATIONS.map((place) => (
-              <div className="place-mini" key={place.title}>
-                <Thumbnail variant={place.variant} className="thumb" />
-                <div className="txt"><b>{place.title}</b><span>{place.meta}</span></div>
-              </div>
-            ))}
-          </div>
-          <div className="panel">
-            <h4 style={{ fontSize: 12.5, color: 'var(--ink-soft)', margin: '2px 0 10px' }}>관련 태그</h4>
-            <div className="chip-row">
-              <span className="tag">#혼자여행</span><span className="tag">#카페</span><span className="tag">#강릉</span><span className="tag">#조용한곳</span>
             </div>
           </div>
         </div>

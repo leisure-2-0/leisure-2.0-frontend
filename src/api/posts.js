@@ -36,8 +36,8 @@ export function getPosts({ category, sort = 'LATEST', cursor, limit } = {}) {
   return apiClient.get('/posts', { params: { category, sort, cursor, limit } }).then((res) => res.data.data);
 }
 
-export function getPostDetail(postId) {
-  return apiClient.get(`/posts/${postId}`).then((res) => res.data.data);
+export function getPostDetail(postId, { signal } = {}) {
+  return apiClient.get(`/posts/${postId}`, { signal }).then((res) => res.data.data);
 }
 
 export function startPost() {

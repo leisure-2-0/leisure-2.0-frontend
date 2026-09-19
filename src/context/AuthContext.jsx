@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { AuthContext } from './auth-context.js';
 import * as authApi from '../api/auth.js';
 import { setAccessToken, clearAccessToken, onUnauthorized } from '../api/tokenStore.js';
@@ -16,28 +17,36 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
 
-  // 앱이 처음 로드될 때 refresh 쿠키로 세션 복구를 시도한다
+  // 앱이 처음 로드될 때 refresh 쿠키로 세션 복구를 시도한다.
+  // refresh는 서버에서 토큰 회전(rotation)을 하므로, 같은 refresh 토큰으로 요청이 두 번 나가면
+  // (예: StrictMode의 effect 이중 실행) 재사용 탐지로 오인되어 세션 전체가 강제 로그아웃된다 —
+  // 그래서 cleanup에서 실제로 요청을 취소해 중복 호출 자체가 나가지 않게 막는다.
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function restoreSession() {
+      let aborted = false;
       try {
-        const { accessToken } = await authApi.reissue();
+        const { accessToken } = await authApi.reissue({ signal: controller.signal });
         setAccessToken(accessToken);
         const profile = await authApi.getMyProfile();
-        if (!cancelled) setUser(toProfile(profile));
+        setUser(toProfile(profile));
         const points = await authApi.getPoints();
-        if (!cancelled) setUser((current) => (current ? { ...current, points } : current));
-      } catch {
-        clearAccessToken();
+        setUser((current) => (current ? { ...current, points } : current));
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          aborted = true;
+        } else {
+          clearAccessToken();
+        }
       } finally {
-        if (!cancelled) setInitializing(false);
+        if (!aborted) setInitializing(false);
       }
     }
 
     restoreSession();
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, []);
 

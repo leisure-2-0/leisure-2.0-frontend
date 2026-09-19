@@ -1,7 +1,7 @@
 name: leisure frontend CI Lint 테스트 (develop branch PR)
 
 on:
-  pull_request:
+  pull-request:
     branches:
       - dev
 

@@ -3,7 +3,7 @@ name: leisure frontend CI Lint 테스트 (develop branch PR)
 on:
   pull_request:
     branches:
-      - develop
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}

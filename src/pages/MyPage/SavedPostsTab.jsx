@@ -1,6 +1,6 @@
 import PostCard from '../../components/PostCard/PostCard.jsx';
 
-export default function SavedPostsTab({ title, posts, loading, error, onToggled, emptyTitle, emptyBody }) {
+export default function SavedPostsTab({ title, posts, loading, error, onToggled, onDeleted, emptyTitle, emptyBody }) {
   return (
     <>
       <div className="section-head">
@@ -17,7 +17,7 @@ export default function SavedPostsTab({ title, posts, loading, error, onToggled,
         </div>
       ) : (
         <div className="post-grid">
-          {posts.map((post) => <PostCard post={post} key={post.id} onToggled={onToggled} />)}
+          {posts.map((post) => <PostCard post={post} key={post.id} onToggled={onToggled} onDeleted={onDeleted} />)}
         </div>
       )}
     </>

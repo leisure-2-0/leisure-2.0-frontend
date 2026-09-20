@@ -70,18 +70,26 @@ export function getMyDraftDetail(postId) {
 
 const CATEGORY_LABELS = {
   RESTAURANT: '식당',
+  CAFE: '카페',
   HOTEL: '숙소',
   ACTIVITY: '액티비티',
+  EXPERIENCE: '체험',
   SCENERY: '풍경',
+  FESTIVAL: '축제',
+  EVENT: '행사',
+  ETC: '기타',
 };
 
-// 백엔드 카테고리는 4종(RESTAURANT/HOTEL/ACTIVITY/SCENERY)뿐이라, 홈 화면의 나머지 카테고리
-// 버튼(카페/체험/축제/행사/기타)은 매칭되는 백엔드 값이 없어 필터를 걸지 않는다(=전체와 동일하게 동작).
 const KOREAN_TO_CATEGORY = {
   식당: 'RESTAURANT',
+  카페: 'CAFE',
   숙소: 'HOTEL',
   액티비티: 'ACTIVITY',
+  체험: 'EXPERIENCE',
   풍경: 'SCENERY',
+  축제: 'FESTIVAL',
+  행사: 'EVENT',
+  기타: 'ETC',
 };
 
 export function toBackendCategory(koreanLabel) {

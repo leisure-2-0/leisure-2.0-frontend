@@ -90,6 +90,38 @@ export default function SignUp() {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label className="auth-field">
+            <span>닉네임</span>
+            <input
+              type="text"
+              placeholder="닉네임을 입력해주세요"
+              autoComplete="nickname"
+              value={form.nickname}
+              onChange={updateField('nickname')}
+              required
+            />
+          </label>
+          {nicknameStatus.checking && <p className="auth-field-hint">확인 중...</p>}
+          {!nicknameStatus.checking && nicknameStatus.message && (
+            <p className={nicknameStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{nicknameStatus.message}</p>
+          )}
+
+          <label className="auth-field">
+            <span>이메일</span>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              value={form.email}
+              onChange={updateField('email')}
+              required
+            />
+          </label>
+          {emailStatus.checking && <p className="auth-field-hint">확인 중...</p>}
+          {!emailStatus.checking && emailStatus.message && (
+            <p className={emailStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{emailStatus.message}</p>
+          )}
+
+          <label className="auth-field">
             <span>비밀번호</span>
             <input
               type="password"
@@ -114,38 +146,6 @@ export default function SignUp() {
             />
           </label>
           {passwordsMismatch && <p className="auth-field-error">비밀번호가 일치하지 않아요.</p>}
-
-          <label className="auth-field">
-            <span>이메일</span>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              value={form.email}
-              onChange={updateField('email')}
-              required
-            />
-          </label>
-          {emailStatus.checking && <p className="auth-field-hint">확인 중...</p>}
-          {!emailStatus.checking && emailStatus.message && (
-            <p className={emailStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{emailStatus.message}</p>
-          )}
-
-          <label className="auth-field">
-            <span>닉네임</span>
-            <input
-              type="text"
-              placeholder="닉네임을 입력해주세요"
-              autoComplete="nickname"
-              value={form.nickname}
-              onChange={updateField('nickname')}
-              required
-            />
-          </label>
-          {nicknameStatus.checking && <p className="auth-field-hint">확인 중...</p>}
-          {!nicknameStatus.checking && nicknameStatus.message && (
-            <p className={nicknameStatus.available ? 'auth-field-hint' : 'auth-field-error'}>{nicknameStatus.message}</p>
-          )}
 
           {error && <p className="auth-field-error">{error}</p>}
 

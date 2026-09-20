@@ -107,7 +107,7 @@
 .tag-input{display:flex;align-items:flex-end;gap:10px;width:100%;}
 .tag-input-chips{
   flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  border-bottom:1px solid var(--line);padding:8px 2px;
+  border-bottom:1px solid var(--line);padding:8px 2px;min-height:44px;
 }
 .tag-input:focus-within .tag-input-chips{border-color:var(--primary);}
 .tag-input-chip{
@@ -126,7 +126,6 @@
 }
 .tag-input-field:focus{outline:none;}
 .tag-input-field::placeholder{color:var(--ink-faint);}
-.tag-input-field:disabled::placeholder{color:var(--ink-faint);}
 .tag-input-count{flex:0 0 auto;font-size:12px;color:var(--ink-faint);padding-bottom:9px;}
 
 .write-actions{display:flex;gap:10px;justify-content:space-between;}

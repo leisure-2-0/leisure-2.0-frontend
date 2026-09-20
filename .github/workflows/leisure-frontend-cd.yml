@@ -1,0 +1,56 @@
+name: leisure frontend CD (main deploy)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CF_ID: ${{ secrets.CF_DISTRIBUTION_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 빌드
+        run: npm run build
+
+      - name: AWS 자격증명 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: ${{ secrets.AWS_S3_ROLE_ARN }}
+
+      - name: S3 동기화
+        run: |
+
+      - name: index.html 업로드
+        run: |
+
+      - name: CloudFront 캐시 무효화
+        if: ${{ env.CF_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CF_ID" \
+            --paths "/index.html"

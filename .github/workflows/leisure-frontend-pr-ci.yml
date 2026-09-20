@@ -1,9 +1,9 @@
-name: leisure frontend Lint 테스트 (develop branch PR)
+name: leisure frontend CI Lint 테스트 (develop branch PR)
 
 on:
   pull_request:
     branches:
-      - develop
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -11,11 +11,12 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
@@ -29,5 +30,12 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
-      - name: ESLint 검사
-        run: npm run lint
+      - name: reviewdog 설정
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
+      - name: ESLint 검사 + 인라인 리포트
+        run: npm run lint --silent -- -f rdjson | reviewdog -f=rdjson -reporter=github-pr-review -fail-level=error
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}

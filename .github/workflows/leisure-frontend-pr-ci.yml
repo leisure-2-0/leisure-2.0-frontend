@@ -11,7 +11,7 @@ concurrency:
 
 permissions:
   contents: read
-  pull-request: write
+  pull-requests: write
 
 jobs:
   lint:
@@ -36,6 +36,6 @@ jobs:
           reviewdog_version: latest
 
       - name: ESLint 검사 + 인라인 리포트
-        run: npm run lint -- -f rdjson | reviewdog -f=rdjson -reporter=github-pr-review -fail-level=error
+        run: npm run lint --silent -- -f rdjson | reviewdog -f=rdjson -reporter=github-pr-review -fail-level=error
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}

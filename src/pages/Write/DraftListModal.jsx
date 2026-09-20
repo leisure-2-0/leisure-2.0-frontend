@@ -27,7 +27,7 @@ export default function DraftListModal({ isOpen, onClose, drafts, loading, onSel
               <div className="draft-row-head">
                 <span className="draft-row-date">{formatSavedAt(draft.savedAt)}</span>
               </div>
-              <span className="draft-row-title">{draft.title?.trim() || '(제목 없음)'}</span>
+              <span className="draft-row-title">{draft.title?.trim() || '(제목없음)'}</span>
             </div>
             <button
               type="button"

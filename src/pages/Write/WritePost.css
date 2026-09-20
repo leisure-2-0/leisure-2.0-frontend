@@ -173,3 +173,6 @@
   font-size:18px;line-height:1;padding:2px 4px;
 }
 .draft-row-delete:hover{color:#c23c3c;}
+
+.write-missing-message{margin:0 0 18px;font-size:14.5px;line-height:1.6;color:var(--ink);}
+.write-missing-actions{display:flex;justify-content:flex-end;}

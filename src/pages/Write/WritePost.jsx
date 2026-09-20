@@ -9,6 +9,7 @@ import LocationPickerField from './LocationPickerField.jsx';
 import TagInput from './TagInput.jsx';
 import RichTextEditor from './RichTextEditor.jsx';
 import DraftListModal from './DraftListModal.jsx';
+import Modal from '../../components/Modal/Modal.jsx';
 import './WritePost.css';
 
 const CATEGORY_OPTIONS = postsApi.WRITABLE_CATEGORIES;
@@ -54,6 +55,7 @@ export default function WritePost() {
   const [drafts, setDrafts] = useState([]);
   const [draftsLoading, setDraftsLoading] = useState(false);
   const [savedHint, setSavedHint] = useState('');
+  const [missingFields, setMissingFields] = useState([]);
   const [formError, setFormError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(isEditMode);
@@ -120,6 +122,13 @@ export default function WritePost() {
     return newId;
   };
 
+  // setSavedHint와 ref만 사용하므로, 인터벌이 오래된 클로저를 들고 있어도 동작에 문제없다.
+  const showSavedHint = (message, durationMs = 2000) => {
+    setSavedHint(message);
+    clearTimeout(savedHintTimerRef.current);
+    savedHintTimerRef.current = setTimeout(() => setSavedHint(''), durationMs);
+  };
+
   useEffect(() => {
     if (isEditMode) return; // 게시된 글 수정은 명시적 저장만 지원(자동저장 없음)
     const timer = setInterval(async () => {
@@ -129,8 +138,10 @@ export default function WritePost() {
       try {
         const id = await ensurePostId();
         await postsApi.saveDraft(id, toRequestFields(s));
-      } catch {
-        // 자동 저장 실패는 조용히 넘어간다 (다음 주기에 재시도됨)
+        showSavedHint('자동 저장했어요');
+      } catch (err) {
+        // 조용히 넘기면 저장이 계속 실패해도 알 방법이 없어, 실패 사유를 그대로 보여준다.
+        showSavedHint(`자동 저장 실패 — ${getErrorMessage(err)}`, 5000);
       }
     }, AUTOSAVE_INTERVAL_MS);
     return () => clearInterval(timer);
@@ -144,7 +155,6 @@ export default function WritePost() {
   if (isEditMode && isLoadingPost) return <section className="page write-page"><p>불러오는 중...</p></section>;
 
   const isOverBodyLimit = bodyLength > MAX_BODY_LENGTH;
-  const canSubmit = title.trim() !== '' && !isBodyEmpty && !isOverBodyLimit;
 
   const handleEditorUpdate = ({ html, isEmpty, length }) => {
     setBodyHtml(html);
@@ -157,9 +167,7 @@ export default function WritePost() {
     try {
       const id = await ensurePostId();
       await postsApi.saveDraft(id, toRequestFields(stateRef.current));
-      setSavedHint('임시 저장했어요');
-      clearTimeout(savedHintTimerRef.current);
-      savedHintTimerRef.current = setTimeout(() => setSavedHint(''), 2000);
+      showSavedHint('임시 저장했어요');
     } catch (err) {
       setFormError(getErrorMessage(err));
     }
@@ -216,9 +224,30 @@ export default function WritePost() {
     }
   };
 
+  // 게시 전 필수 항목 확인 — 빠진 게 있으면 게시하지 않고 무엇이 빠졌는지 팝업으로 알린다.
+  const findMissingFields = (s) => {
+    const missing = [];
+    if (!s.title.trim()) missing.push('제목');
+    if (!s.category) missing.push('카테고리');
+    if (s.isBodyEmpty) missing.push('내용');
+    if (!s.location || (!s.location.address && !s.location.placeName)) missing.push('위치');
+    return missing;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit || isPublishing) return;
+    if (isPublishing) return;
+
+    const missing = findMissingFields(stateRef.current);
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      return;
+    }
+    if (isOverBodyLimit) {
+      setFormError(`본문은 ${MAX_BODY_LENGTH.toLocaleString()}자를 넘을 수 없어요.`);
+      return;
+    }
+
     setFormError('');
     setIsPublishing(true);
     try {
@@ -264,7 +293,7 @@ export default function WritePost() {
             placeholder="제목을 입력해주세요"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            required
+            maxLength={50}
           />
 
           <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} content={bodyHtml} />
@@ -294,12 +323,25 @@ export default function WritePost() {
           </div>
           <div className="write-actions-right">
             <button type="button" className="write-cancel" onClick={() => navigate(-1)}>취소</button>
-            <button type="submit" className="auth-submit" disabled={!canSubmit || isPublishing}>
+            <button type="submit" className="auth-submit" disabled={isPublishing}>
               {isEditMode ? '수정 완료' : '게시하기'}
             </button>
           </div>
         </div>
       </form>
+
+      <Modal
+        isOpen={missingFields.length > 0}
+        onClose={() => setMissingFields([])}
+        title="아직 덜 채워졌어요"
+      >
+        <p className="write-missing-message">{missingFields.join(', ')} 기록도 마저 채워주세요!</p>
+        <div className="write-missing-actions">
+          <button type="button" className="auth-submit" onClick={() => setMissingFields([])}>
+            돌아가서 채우기
+          </button>
+        </div>
+      </Modal>
 
       {!isEditMode && (
         <DraftListModal

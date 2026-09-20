@@ -16,7 +16,6 @@ concurrency:
 env:
   CF_ID: ${{ secrets.CF_DISTRIBUTION_ID }}
   S3_BUCKET: ${{ secrets.S3_BUCKET }}
-  KAKAO_MAP_KEY: ${{ secrets.KAKAO_MAP_KEY }}
 
 jobs:
   deploy:
@@ -37,6 +36,9 @@ jobs:
 
       - name: 빌드
         run: npm run build
+        env:
+          VITE_KAKAO_MAP_KEY: ${{ secrets.KAKAO_MAP_KEY }}
+          VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
       - name: AWS 자격증명 설정
         uses: aws-actions/configure-aws-credentials@v4

@@ -38,7 +38,12 @@ export default function ChangePassword() {
       setAccessToken(accessToken);
       navigate('/mypage?tab=account');
     } catch (err) {
-      setError(getErrorMessage(err));
+      const status = err?.response?.status;
+      setError(
+        status === 400 || status === 401
+          ? '현재 비밀번호가 올바르지 않거나, 새 비밀번호 형식이 맞지 않아요. (영문·숫자·특수문자(!@#$%) 포함 8~20자)'
+          : getErrorMessage(err)
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -83,9 +83,9 @@ export default function SignUp() {
     <section className="page auth-page signup-page">
       <div className="auth-card">
         <Link to="/" className="auth-logo">
-          <div className="logo-stamp">여가</div>Yeo-ga
+          <img className="logo-stamp" src="/logo.svg" alt="로고" />여정
         </Link>
-        <h1>여가와 함께 시작해요</h1>
+        <h1>여정과 함께 시작해요</h1>
         <p className="auth-sub">소도시 사람들의 진짜 이야기를 남겨보세요.</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>

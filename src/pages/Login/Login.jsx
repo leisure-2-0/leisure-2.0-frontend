@@ -32,7 +32,7 @@ export default function Login() {
     <section className="page auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-logo">
-          <div className="logo-stamp">여가</div>Yeo-ga
+          <img className="logo-stamp" src="/logo.svg" alt="로고" />여정
         </Link>
         <h1>다시 만나 반가워요</h1>
         <p className="auth-sub">소도시의 진짜 이야기를 계속 만나보세요.</p>

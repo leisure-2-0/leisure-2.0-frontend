@@ -9,9 +9,9 @@
   max-width:1400px;margin:0 auto;padding:14px 32px;
   display:flex;align-items:center;gap:28px;
 }
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:var(--primary-deep);flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;color:var(--ink);flex-shrink:0;}
 .nav-tabs{
-  display:flex;gap:4px;flex:1;min-width:0;
+  display:flex;gap:4px;flex:1;min-width:0;margin-left:-14px;
   overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
 }
 .nav-tabs::-webkit-scrollbar{display:none;}

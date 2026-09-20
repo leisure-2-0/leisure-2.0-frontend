@@ -139,7 +139,7 @@ export default function Home() {
       <div className="hero">
         <div className="hero-text">
           <h1>이번 주, 아무도 몰랐던<br />동네 이야기가 올라왔어요</h1>
-          <p><span>여가는 소도시에 사는 사람들이 직접 남기는</span> <span>진짜 동네 정보로 채워지는 지역 발견 플랫폼입니다.</span></p>
+          <p><span>여정은 각지에 사는 사람들이 직접 남기는</span> <span>진짜 동네 정보로 채워지는 지역 발견 플랫폼입니다.</span></p>
         </div>
 
         <div className="search-dock" ref={searchDockRef}>
@@ -174,9 +174,9 @@ export default function Home() {
       </div>
 
       <div className="stat-strip">
-        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">인증된 소도시</div></div>
-        <div className="stat-item"><div className="num">{stats ? stats.certifiedPostCount.toLocaleString() : '-'}</div><div className="lbl">누적 인증 게시글</div></div>
-        <div className="stat-item"><div className="num">{stats ? stats.monthlyPostCount.toLocaleString() : '-'}</div><div className="lbl">이번달 게시글</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">여정이 남은 소도시</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedPostCount.toLocaleString() : '-'}</div><div className="lbl">누적 여정글</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.monthlyPostCount.toLocaleString() : '-'}</div><div className="lbl">이번달 여정글</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.inProgressFestivalCount.toLocaleString() : '-'}</div><div className="lbl">이번 달 진행중 축제</div></div>
       </div>
 

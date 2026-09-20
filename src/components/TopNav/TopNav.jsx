@@ -36,7 +36,7 @@ export default function TopNav() {
     <header className="topnav">
       <div className="topnav-inner">
         <Link to="/" className="logo">
-          <div className="logo-stamp">여가</div>Yeo-ga
+          <img className="logo-stamp" src="/logo.svg" alt="로고" />여정
         </Link>
         <nav className="nav-tabs">
           <NavLink to="/calendar" className={({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')}>축제 캘린더</NavLink>

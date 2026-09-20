@@ -189,6 +189,7 @@ export default function Home() {
         <div className="home-sidebar">
           <MiniCalendar panelRef={miniCalPanelRef} />
 
+          {/*
           <div className="panel side-block">
             <h4>실시간 인기 지역</h4>
             <div className="rank-row top"><span className="rank-num">1</span><span className="rank-place">강릉</span><span className="rank-count">432 뷰</span></div>
@@ -197,6 +198,7 @@ export default function Home() {
             <div className="rank-row"><span className="rank-num">4</span><span className="rank-place">담양</span><span className="rank-count">255 뷰</span></div>
             <div className="rank-row"><span className="rank-num">5</span><span className="rank-place">군산</span><span className="rank-count">198 뷰</span></div>
           </div>
+          */}
         </div>
 
         <div className="cat-square-row">

@@ -43,8 +43,15 @@ export default function PostCard({ post, onToggled, onDeleted }) {
       const result = isLiked ? await postsApi.unlikePost(post.id) : await postsApi.likePost(post.id);
       setIsLiked(result.isLiked);
       onToggled?.(post.id, { isLiked: result.isLiked, isBookmarked });
-    } catch {
-      // 실패 시 상태 유지 (버튼을 다시 누르면 재시도)
+    } catch (err) {
+      // 낡은 목록 캐시 탓에 상태를 반대로 알고 있으면 서버가 409(이미 눌림)/404(안 눌림)로 거절한다.
+      // 이때 조용히 넘어가면 버튼이 영영 안 먹는 것처럼 보이므로, 서버가 알려준 실제 상태로 되돌린다.
+      const status = err?.response?.status;
+      if (status === 409 || status === 404) {
+        const actual = status === 409;
+        setIsLiked(actual);
+        onToggled?.(post.id, { isLiked: actual, isBookmarked });
+      }
     } finally {
       setIsLikeBusy(false);
     }
@@ -59,8 +66,13 @@ export default function PostCard({ post, onToggled, onDeleted }) {
       const result = isBookmarked ? await postsApi.unbookmarkPost(post.id) : await postsApi.bookmarkPost(post.id);
       setIsBookmarked(result.isBookmarked);
       onToggled?.(post.id, { isLiked, isBookmarked: result.isBookmarked });
-    } catch {
-      // 실패 시 상태 유지 (버튼을 다시 누르면 재시도)
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 409 || status === 404) {
+        const actual = status === 409;
+        setIsBookmarked(actual);
+        onToggled?.(post.id, { isLiked, isBookmarked: actual });
+      }
     } finally {
       setIsBookmarkBusy(false);
     }

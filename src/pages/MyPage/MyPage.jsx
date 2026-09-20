@@ -56,20 +56,37 @@ export default function MyPage() {
   if (initializing) return null;
   if (!isLoggedIn) return <Navigate to="/login" state={{ from: '/mypage' }} replace />;
 
+  // 좋아요/북마크 변경은 보고 있는 탭뿐 아니라 이미 불러와 둔 다른 탭 캐시에도 반영해야 한다.
+  // (예: 좋아요 탭에서 취소했는데 내 게시글 캐시엔 눌린 상태로 남아, 그 탭으로 가면 다시 눌린 것처럼 보임)
   const handleToggled = (postId, { isLiked, isBookmarked }) => {
-    const shouldRemove = (activeTab === 'likes' && !isLiked) || (activeTab === 'bookmarks' && !isBookmarked);
-    if (!shouldRemove) return;
-    setTabData((prev) => ({
-      ...prev,
-      [activeTab]: { ...prev[activeTab], items: prev[activeTab].items.filter((p) => p.id !== postId) },
-    }));
+    setTabData((prev) => {
+      const next = {};
+      for (const [tab, data] of Object.entries(prev)) {
+        const belongs = tab === 'likes' ? isLiked : tab === 'bookmarks' ? isBookmarked : true;
+
+        // 좋아요/북마크 목록에 새로 들어가야 하는 글은 끼워넣을 위치를 알 수 없으니,
+        // 캐시를 버려서 그 탭을 열 때 다시 불러오게 한다.
+        if (belongs && tab !== 'posts' && !data.items.some((p) => p.id === postId)) continue;
+
+        next[tab] = {
+          ...data,
+          items: data.items
+            .filter((p) => p.id !== postId || belongs)
+            .map((p) => (p.id === postId ? { ...p, isLiked, isBookmarked } : p)),
+        };
+      }
+      return next;
+    });
   };
 
   const handleDeleted = (postId) => {
-    setTabData((prev) => ({
-      ...prev,
-      [activeTab]: { ...prev[activeTab], items: prev[activeTab].items.filter((p) => p.id !== postId) },
-    }));
+    setTabData((prev) => {
+      const next = {};
+      for (const [tab, data] of Object.entries(prev)) {
+        next[tab] = { ...data, items: data.items.filter((p) => p.id !== postId) };
+      }
+      return next;
+    });
   };
 
   return (
@@ -111,6 +128,7 @@ export default function MyPage() {
               loading={loading}
               error={error}
               onToggled={handleToggled}
+              onDeleted={handleDeleted}
               emptyTitle="아직 북마크한 게시글이 없어요"
               emptyBody="마음에 드는 이야기를 북마크해보세요."
             />
@@ -122,6 +140,7 @@ export default function MyPage() {
               loading={loading}
               error={error}
               onToggled={handleToggled}
+              onDeleted={handleDeleted}
               emptyTitle="아직 좋아요한 게시글이 없어요"
               emptyBody="공감 가는 이야기에 좋아요를 남겨보세요."
             />

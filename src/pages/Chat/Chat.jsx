@@ -29,7 +29,7 @@ const CANNED_REPLIES = [
 ];
 
 const INITIAL_MESSAGES = [
-  { id: 1, role: 'ai', text: '안녕하세요! 여가 AI예요 🙂 소도시 여행에 대해 무엇이든 물어보세요.' },
+  { id: 1, role: 'ai', text: '안녕하세요! 여정 AI예요 🙂 소도시 여행에 대해 무엇이든 물어보세요.' },
   { id: 2, role: 'user', text: '강릉에서 혼자 가기 좋은 카페 추천해줘' },
   {
     id: 3,
@@ -99,8 +99,8 @@ export default function Chat() {
 
         <div className="chat-window">
           <div className="chat-header">
-            <div className="logo-stamp">여가</div>
-            <div className="htxt"><b>여가 AI 챗봇</b><span>인증된 게시글 기반으로 답변해요</span></div>
+            <img className="logo-stamp" src="/logo.svg" alt="로고" />
+            <div className="htxt"><b>여정 AI 챗봇</b><span>인증된 게시글 기반으로 답변해요</span></div>
           </div>
           <div className="chat-log" ref={chatLogRef}>
             {messages.map((message) => (

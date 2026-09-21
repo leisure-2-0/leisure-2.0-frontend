@@ -15,7 +15,14 @@ const INITIAL_FORM = {
 const IDLE_STATUS = { checking: false, message: '', available: null };
 const DUPLICATE_CHECK_DELAY_MS = 500;
 
-function useDuplicateCheck(value, checkFn) {
+// 로컬파트@도메인.최상위도메인 — 공백과 연속된 점을 허용하지 않는다.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+
+function validateEmailFormat(value) {
+  return EMAIL_PATTERN.test(value) ? '' : '이메일 형식이 올바르지 않아요. (예: you@example.com)';
+}
+
+function useDuplicateCheck(value, checkFn, validateFormat) {
   const [status, setStatus] = useState(IDLE_STATUS);
 
   useEffect(() => {
@@ -25,13 +32,17 @@ function useDuplicateCheck(value, checkFn) {
         setStatus(IDLE_STATUS);
         return;
       }
+      const formatError = validateFormat ? validateFormat(trimmed) : '';
+      if (formatError) {
+        setStatus({ checking: false, message: formatError, available: false });
+        return;
+      }
       setStatus({ checking: true, message: '', available: null });
       checkFn(trimmed)
         .then((res) => setStatus({ checking: false, message: res.data.message, available: true }))
         .catch((err) => setStatus({ checking: false, message: getErrorMessage(err), available: false }));
     }, DUPLICATE_CHECK_DELAY_MS);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return status;
@@ -45,13 +56,14 @@ export default function SignUp() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail);
+  const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail, validateEmailFormat);
   const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname);
 
   const passwordsMismatch = isConfirmTouched && form.confirmPassword !== '' && form.confirmPassword !== form.password;
   const canSubmit =
     Object.values(form).every((value) => value.trim() !== '') &&
     form.password === form.confirmPassword &&
+    validateEmailFormat(form.email.trim()) === '' &&
     emailStatus.available !== false &&
     nicknameStatus.available !== false;
 
@@ -86,7 +98,7 @@ export default function SignUp() {
           <img className="logo-stamp" src="/logo.svg" alt="로고" />여정
         </Link>
         <h1>여정과 함께 시작해요</h1>
-        <p className="auth-sub">소도시 사람들의 진짜 이야기를 남겨보세요.</p>
+        <p className="auth-sub">나누고 싶은 여행 정보, 여가 정보를 남기러 가요</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label className="auth-field">

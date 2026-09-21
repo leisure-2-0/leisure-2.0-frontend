@@ -32,6 +32,10 @@ function validateEmailFormat(value) {
   return EMAIL_PATTERN.test(value) ? '' : '이메일 형식이 올바르지 않아요. (예: you@example.com)';
 }
 
+function validateNicknameFormat(value) {
+  return /\s/.test(value) ? '닉네임에는 공백을 넣을 수 없어요.' : '';
+}
+
 function useDuplicateCheck(value, checkFn, validateFormat, labels) {
   const [status, setStatus] = useState(IDLE_STATUS);
 
@@ -79,13 +83,14 @@ export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail, validateEmailFormat, EMAIL_LABELS);
-  const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname, null, NICKNAME_LABELS);
+  const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname, validateNicknameFormat, NICKNAME_LABELS);
 
   const passwordsMismatch = isConfirmTouched && form.confirmPassword !== '' && form.confirmPassword !== form.password;
   const canSubmit =
     Object.values(form).every((value) => value.trim() !== '') &&
     form.password === form.confirmPassword &&
     validateEmailFormat(form.email.trim()) === '' &&
+    validateNicknameFormat(form.nickname.trim()) === '' &&
     emailStatus.available !== false &&
     nicknameStatus.available !== false;
 
@@ -147,6 +152,7 @@ export default function SignUp() {
               autoComplete="nickname"
               value={form.nickname}
               onChange={updateField('nickname')}
+              maxLength={15}
               required
             />
           </label>
@@ -163,6 +169,7 @@ export default function SignUp() {
               autoComplete="email"
               value={form.email}
               onChange={updateField('email')}
+              maxLength={50}
               required
             />
           </label>

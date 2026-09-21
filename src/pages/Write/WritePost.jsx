@@ -302,7 +302,7 @@ export default function WritePost() {
 
         <div className="auth-field">
           <span>태그</span>
-          <TagInput tags={tags} onChange={setTags} maxTags={5} />
+          <TagInput tags={tags} onChange={setTags} maxTags={5} maxTagLength={10} />
         </div>
 
         <LocationPickerField location={location} onChange={setLocation} />

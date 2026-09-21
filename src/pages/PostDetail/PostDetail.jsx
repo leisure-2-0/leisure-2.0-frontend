@@ -11,22 +11,10 @@ import * as postsApi from '../../api/posts.js';
 import { getErrorMessage } from '../../api/errors.js';
 import './PostDetail.css';
 
-const CATEGORY_LABELS = {
-  RESTAURANT: '식당',
-  CAFE: '카페',
-  HOTEL: '숙소',
-  ACTIVITY: '액티비티',
-  EXPERIENCE: '체험',
-  SCENERY: '풍경',
-  FESTIVAL: '축제',
-  EVENT: '행사',
-  ETC: '기타',
-};
-
 export default function PostDetail() {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, initializing } = useAuth();
 
   // postId별로 캐싱한다 — 캐시가 없으면 아직 못 불러온 것(로딩 중).
   const [postsById, setPostsById] = useState({});
@@ -35,13 +23,15 @@ export default function PostDetail() {
   const error = entry?.error ?? '';
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   const [isLikeBusy, setIsLikeBusy] = useState(false);
   const [isBookmarkBusy, setIsBookmarkBusy] = useState(false);
   const [isDeleteBusy, setIsDeleteBusy] = useState(false);
   const [kakaoLoading, kakaoLoadError] = useKakaoLoader(KAKAO_LOADER_OPTIONS);
 
   useEffect(() => {
-    if (postsById[postId]) return;
+    if (initializing || postsById[postId]) return;
 
     const controller = new AbortController();
     postsApi
@@ -50,6 +40,8 @@ export default function PostDetail() {
         setPostsById((prev) => ({ ...prev, [postId]: { data, error: null } }));
         setIsLiked(data.isLiked);
         setIsBookmarked(data.isBookmarked);
+        setLikeCount(data.likeCount ?? 0);
+        setBookmarkCount(data.bookmarkCount ?? 0);
       })
       .catch((err) => {
         if (axios.isCancel(err)) return;
@@ -59,7 +51,7 @@ export default function PostDetail() {
     return () => {
       controller.abort();
     };
-  }, [postId, postsById]);
+  }, [postId, postsById, initializing]);
 
   const handleToggleLike = async () => {
     if (!isLoggedIn) return navigate('/login');
@@ -68,8 +60,10 @@ export default function PostDetail() {
     try {
       const result = isLiked ? await postsApi.unlikePost(postId) : await postsApi.likePost(postId);
       setIsLiked(result.isLiked);
-    } catch {
-      // 실패 시 상태 유지
+      setLikeCount(result.likeCount);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 409 || status === 404) setIsLiked(status === 409);
     } finally {
       setIsLikeBusy(false);
     }
@@ -82,8 +76,10 @@ export default function PostDetail() {
     try {
       const result = isBookmarked ? await postsApi.unbookmarkPost(postId) : await postsApi.bookmarkPost(postId);
       setIsBookmarked(result.isBookmarked);
-    } catch {
-      // 실패 시 상태 유지
+      setBookmarkCount(result.bookmarkCount);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 409 || status === 404) setIsBookmarked(status === 409);
     } finally {
       setIsBookmarkBusy(false);
     }
@@ -106,7 +102,7 @@ export default function PostDetail() {
   if (error) return <Navigate to="/" replace />;
   if (!post) return <section className="page post-detail-page"><p>불러오는 중...</p></section>;
 
-  const categoryLabel = CATEGORY_LABELS[post.category] || post.category;
+  const categoryLabel = postsApi.fromBackendCategory(post.category) || post.category;
 
   return (
     <section className="page post-detail-page">
@@ -138,19 +134,23 @@ export default function PostDetail() {
         <div className="post-detail-actions">
           <button
             type="button"
-            className={'post-detail-icon-btn' + (isLiked ? ' active' : '')}
-            aria-label="좋아요"
+            className={'post-detail-action-btn' + (isLiked ? ' active' : '')}
+            aria-label={`좋아요 ${likeCount}개`}
+            aria-pressed={isLiked}
             onClick={handleToggleLike}
           >
             <HeartIcon filled={isLiked} />
+            <span className="post-detail-action-count">{likeCount.toLocaleString()}</span>
           </button>
           <button
             type="button"
-            className={'post-detail-icon-btn' + (isBookmarked ? ' active' : '')}
-            aria-label="북마크"
+            className={'post-detail-action-btn bookmark' + (isBookmarked ? ' active' : '')}
+            aria-label={`북마크 ${bookmarkCount}개`}
+            aria-pressed={isBookmarked}
             onClick={handleToggleBookmark}
           >
             <BookmarkIcon filled={isBookmarked} />
+            <span className="post-detail-action-count">{bookmarkCount.toLocaleString()}</span>
           </button>
         </div>
       </div>

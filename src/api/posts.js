@@ -71,24 +71,24 @@ export function getMyDraftDetail(postId) {
 const CATEGORY_LABELS = {
   RESTAURANT: '식당',
   CAFE: '카페',
-  HOTEL: '숙소',
+  ACCOMMODATION: '숙소',
   ACTIVITY: '액티비티',
   EXPERIENCE: '체험',
   SCENERY: '풍경',
-  FESTIVAL: '축제',
-  EVENT: '행사',
+  FESTIVAL: '축제/행사',
+  STORE: '가게',
   ETC: '기타',
 };
 
 const KOREAN_TO_CATEGORY = {
   식당: 'RESTAURANT',
   카페: 'CAFE',
-  숙소: 'HOTEL',
+  숙소: 'ACCOMMODATION',
   액티비티: 'ACTIVITY',
   체험: 'EXPERIENCE',
   풍경: 'SCENERY',
-  축제: 'FESTIVAL',
-  행사: 'EVENT',
+  '축제/행사': 'FESTIVAL',
+  가게: 'STORE',
   기타: 'ETC',
 };
 

@@ -8,7 +8,7 @@ export default function TopNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch();
-  const { user, isLoggedIn, refreshPoints } = useAuth();
+  const { user, isLoggedIn, refreshPoints, logout } = useAuth();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
@@ -20,6 +20,12 @@ export default function TopNav() {
   const goToMyPage = (tab) => {
     setIsProfileMenuOpen(false);
     navigate(tab ? `/mypage?tab=${tab}` : '/mypage');
+  };
+
+  const handleLogout = () => {
+    setIsProfileMenuOpen(false);
+    logout();
+    navigate('/');
   };
 
   // 프로필 메뉴 바깥을 클릭하면 닫기
@@ -90,6 +96,7 @@ export default function TopNav() {
                       <button className="profile-menu-link" onClick={() => goToMyPage('likes')}>좋아요</button>
                       <button className="profile-menu-link" onClick={() => goToMyPage('bookmarks')}>북마크</button>
                       <button className="profile-menu-link" onClick={() => goToMyPage('account')}>설정</button>
+                      <button className="profile-menu-link profile-menu-logout" onClick={handleLogout}>로그아웃</button>
                     </div>
                   </div>
                 )}

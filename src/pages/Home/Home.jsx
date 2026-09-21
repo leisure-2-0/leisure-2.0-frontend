@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
+import { useAuth } from '../../context/auth-context.js';
 import MiniCalendar from '../../components/MiniCalendar/MiniCalendar.jsx';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 import PostMapView from '../../components/PostMapView/PostMapView.jsx';
@@ -20,14 +21,15 @@ const CATEGORIES = [
   { category: '액티비티', label: '액티비티', icon: '⛰️', background: 'var(--accent-pale)' },
   { category: '체험', label: '체험', icon: '🎨', background: 'var(--stamp-pale)' },
   { category: '풍경', label: '풍경/명소', icon: '🌄', background: 'var(--primary-pale)' },
-  { category: '축제', label: '축제', icon: '🎊', background: 'var(--stamp-pale)' },
-  { category: '행사', label: '행사', icon: '🎪', background: 'var(--accent-pale)' },
+  { category: '축제/행사', label: '축제/행사', icon: '🎊', background: 'var(--stamp-pale)' },
+  { category: '가게', label: '가게', icon: '🏪', background: 'var(--accent-pale)' },
   { category: '기타', label: '기타', icon: '✨', background: 'var(--primary-pale)' },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch(); //검색기능, 검색어 변경 탐지
+  const { initializing } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('all'); // 카테고리 기본값 = 전체
   const [sortOrder, setSortOrder] = useState('latest'); // 정렬 기본값 = 최신순
   const [isSuggestOpen, setIsSuggestOpen] = useState(false); // 검색 제안 패널 열림 상태
@@ -53,7 +55,7 @@ export default function Home() {
   const feedError = cached?.error ?? '';
 
   useEffect(() => {
-    if (feedCache[feedKey]) return;
+    if (initializing || feedCache[feedKey]) return;
 
     let cancelled = false;
     postsApi
@@ -70,7 +72,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [feedKey, selectedCategory, sortOrder, feedCache]);
+  }, [feedKey, selectedCategory, sortOrder, feedCache, initializing]);
 
   const [stats, setStats] = useState(null);
   useEffect(() => {
@@ -127,6 +129,7 @@ export default function Home() {
 
   return (
     <section id="page-home" className="page">
+      {/*
       <div className="promo-banner">
         <div className="promo-tag">공식 제휴 · AD</div>
         <div className="promo-text">
@@ -135,6 +138,7 @@ export default function Home() {
         </div>
         <button className="promo-cta" onClick={() => navigate('/calendar')}>자세히 보기 →</button>
       </div>
+      */}
 
       <div className="hero">
         <div className="hero-text">
@@ -174,7 +178,7 @@ export default function Home() {
       </div>
 
       <div className="stat-strip">
-        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">여정이 남은 소도시</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">여정을 남긴 지역 수</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.certifiedPostCount.toLocaleString() : '-'}</div><div className="lbl">누적 여정글</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.monthlyPostCount.toLocaleString() : '-'}</div><div className="lbl">이번달 여정글</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.inProgressFestivalCount.toLocaleString() : '-'}</div><div className="lbl">이번 달 진행중 축제</div></div>

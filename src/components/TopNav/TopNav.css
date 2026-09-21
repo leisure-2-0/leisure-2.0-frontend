@@ -59,8 +59,12 @@
   background:linear-gradient(135deg,var(--primary),var(--primary-deep));
   background-size:cover;background-position:center;
 }
-.profile-menu-id{min-width:0;}
-.profile-menu-id b{display:block;font-size:14px;color:var(--ink);}
+.profile-menu-id{min-width:0;flex:1;}
+.profile-menu-id b,
+.profile-menu-id span{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.profile-menu-id b{font-size:14px;color:var(--ink);}
 .profile-menu-id span{font-size:11.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
 
 .profile-menu-points{
@@ -74,6 +78,8 @@
   padding:10px 8px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--ink);
 }
 .profile-menu-link:hover{background:var(--surface-alt);color:var(--primary-deep);}
+.profile-menu-logout{color:var(--ink-soft);}
+.profile-menu-logout:hover{color:var(--stamp);}
 
 @media (max-width:880px) and (min-width:721px){
   .nav-search{display:none;}

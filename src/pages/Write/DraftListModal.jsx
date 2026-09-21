@@ -17,11 +17,18 @@ export default function DraftListModal({ isOpen, onClose, drafts, loading, onSel
           <p className="draft-list-empty">아직 저장된 임시 글이 없어요.</p>
         )}
         {drafts.map((draft) => (
-          <button
-            type="button"
+          <div
             key={draft.id}
             className="draft-row"
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(draft)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect(draft);
+              }
+            }}
           >
             <div className="draft-row-main">
               <div className="draft-row-head">
@@ -40,7 +47,7 @@ export default function DraftListModal({ isOpen, onClose, drafts, loading, onSel
             >
               ×
             </button>
-          </button>
+          </div>
         ))}
       </div>
     </Modal>

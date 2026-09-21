@@ -37,7 +37,11 @@ export default function TopFestivalList() {
         ) : (
           festivalList.map((event) => (
             <div className="fest-card" key={event.festivalId}>
-              <Thumbnail variant={((event.region?.length ?? 0) % 4) + 1} className="thumb" />
+              <Thumbnail
+                variant={((event.region?.length ?? 0) % 4) + 1}
+                src={event.thumbnailUrl}
+                className="thumb"
+              />
               <div className="info"><b>{event.name}</b><div className="meta">{event.region ?? '지역 미상'} · {event.eventStartDate.slice(5).replace('-', '.')}</div></div>
               <div className="dday">{event.daysUntil === 0 ? 'D-DAY' : 'D-' + event.daysUntil}</div>
             </div>

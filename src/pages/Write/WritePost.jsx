@@ -14,8 +14,6 @@ import './WritePost.css';
 
 const CATEGORY_OPTIONS = postsApi.WRITABLE_CATEGORIES;
 const AUTOSAVE_INTERVAL_MS = 60000;
-// AI 임베딩이 청킹 없이 게시글 하나를 통째로 벡터화하고, 답변 생성 프롬프트도 문서 여러 개를
-// 그대로 이어붙이는 구조라 본문이 너무 길면 의미가 흐려지거나 프롬프트가 넘칠 수 있어 제한한다.
 const MAX_BODY_LENGTH = 2000;
 
 function toRequestFields(s) {
@@ -65,7 +63,7 @@ export default function WritePost() {
   const savedHintTimerRef = useRef(null);
   const postIdRef = useRef(isEditMode ? Number(editingPostIdParam) : null);
 
-  // 수정 모드면 기존 게시글 내용을 불러와 폼을 채운다 (본인 글이 아니면 접근 불가).
+  // 수정 모드면 기존 게시글 내용을 불러와 폼을 채운다
   useEffect(() => {
     if (!isEditMode) return;
     let cancelled = false;
@@ -93,8 +91,6 @@ export default function WritePost() {
         );
         setBodyHtml(data.content || '');
         setIsBodyEmpty(!data.content);
-        // RichTextEditor는 isLoadingPost가 풀린 뒤에야 처음 마운트되므로, 그때 bodyHtml을
-        // 초기 content prop으로 받아 반영한다 (아직 마운트 전이라 editorRef로는 못 건드림).
       })
       .catch(() => {
         if (!cancelled) setLoadFailed(true);
@@ -107,14 +103,11 @@ export default function WritePost() {
     };
   }, [isEditMode, editingPostIdParam]);
 
-  // always-fresh snapshot of the form for the autosave timer, which is set up once and
-  // would otherwise close over stale state.
   const stateRef = useRef(null);
   useEffect(() => {
     stateRef.current = { title, coverImageUrl, category, tags, location, bodyHtml, isBodyEmpty };
   });
 
-  // 실제로 저장할 내용이 생기기 전까지는 서버에 글 컨테이너를 만들지 않는다.
   const ensurePostId = async () => {
     if (postIdRef.current) return postIdRef.current;
     const { postId: newId } = await postsApi.startPost();
@@ -122,7 +115,10 @@ export default function WritePost() {
     return newId;
   };
 
-  // setSavedHint와 ref만 사용하므로, 인터벌이 오래된 클로저를 들고 있어도 동작에 문제없다.
+  const discardPostIdIfGone = (err) => {
+    if (err?.response?.status === 404) postIdRef.current = null;
+  };
+
   const showSavedHint = (message, durationMs = 2000) => {
     setSavedHint(message);
     clearTimeout(savedHintTimerRef.current);
@@ -140,7 +136,7 @@ export default function WritePost() {
         await postsApi.saveDraft(id, toRequestFields(s));
         showSavedHint('자동 저장했어요');
       } catch (err) {
-        // 조용히 넘기면 저장이 계속 실패해도 알 방법이 없어, 실패 사유를 그대로 보여준다.
+        discardPostIdIfGone(err);
         showSavedHint(`자동 저장 실패 — ${getErrorMessage(err)}`, 5000);
       }
     }, AUTOSAVE_INTERVAL_MS);
@@ -169,6 +165,7 @@ export default function WritePost() {
       await postsApi.saveDraft(id, toRequestFields(stateRef.current));
       showSavedHint('임시 저장했어요');
     } catch (err) {
+      discardPostIdIfGone(err);
       setFormError(getErrorMessage(err));
     }
   };
@@ -219,6 +216,7 @@ export default function WritePost() {
     try {
       await postsApi.deletePost(id);
       setDrafts((prev) => prev.filter((draft) => draft.id !== id));
+      if (postIdRef.current === id) postIdRef.current = null;
     } catch (err) {
       setFormError(getErrorMessage(err));
     }
@@ -304,7 +302,7 @@ export default function WritePost() {
 
         <div className="auth-field">
           <span>태그</span>
-          <TagInput tags={tags} onChange={setTags} maxTags={5} />
+          <TagInput tags={tags} onChange={setTags} maxTags={5} maxTagLength={10} />
         </div>
 
         <LocationPickerField location={location} onChange={setLocation} />

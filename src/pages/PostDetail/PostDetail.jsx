@@ -11,18 +11,6 @@ import * as postsApi from '../../api/posts.js';
 import { getErrorMessage } from '../../api/errors.js';
 import './PostDetail.css';
 
-const CATEGORY_LABELS = {
-  RESTAURANT: '식당',
-  CAFE: '카페',
-  HOTEL: '숙소',
-  ACTIVITY: '액티비티',
-  EXPERIENCE: '체험',
-  SCENERY: '풍경',
-  FESTIVAL: '축제',
-  EVENT: '행사',
-  ETC: '기타',
-};
-
 export default function PostDetail() {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -114,7 +102,7 @@ export default function PostDetail() {
   if (error) return <Navigate to="/" replace />;
   if (!post) return <section className="page post-detail-page"><p>불러오는 중...</p></section>;
 
-  const categoryLabel = CATEGORY_LABELS[post.category] || post.category;
+  const categoryLabel = postsApi.fromBackendCategory(post.category) || post.category;
 
   return (
     <section className="page post-detail-page">

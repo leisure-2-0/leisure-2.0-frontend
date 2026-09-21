@@ -55,6 +55,7 @@ export default function SearchResults() {
     setIsFilterOpen(false);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const resetFilters = () => {
     setSelectedCategory('all');
     setSelectedSido(null);
@@ -124,6 +125,7 @@ export default function SearchResults() {
         }));
       }
     } catch {
+      // 다시 누르면 재시도된다
     } finally {
       setLoadingMore(false);
     }

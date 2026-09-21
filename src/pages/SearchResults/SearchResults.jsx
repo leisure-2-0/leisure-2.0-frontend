@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import { REGION_HIERARCHY, toRegionSearchTerm } from '../../data/regions.js';
+import { useAuth } from '../../context/auth-context.js';
 import * as postsApi from '../../api/posts.js';
 import * as searchApi from '../../api/search.js';
 import { getErrorMessage } from '../../api/errors.js';
@@ -14,6 +15,7 @@ const SEARCH_PAGE_SIZE = 15;
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { initializing } = useAuth();
   const searchTermFromUrl = searchParams.get('q') || '';
 
   // this page's search box is intentionally independent from the header/home search box:
@@ -74,7 +76,7 @@ export default function SearchResults() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    if (feedCache[feedKey]) return;
+    if (initializing || feedCache[feedKey]) return;
     let cancelled = false;
 
     const request = isSearching
@@ -96,7 +98,7 @@ export default function SearchResults() {
     return () => {
       cancelled = true;
     };
-  }, [feedKey, isSearching, searchTermFromUrl, backendCategory, backendSort, feedCache]);
+  }, [feedKey, isSearching, searchTermFromUrl, backendCategory, backendSort, feedCache, initializing]);
 
   const handleLoadMore = async () => {
     if (!hasNext || loadingMore) return;

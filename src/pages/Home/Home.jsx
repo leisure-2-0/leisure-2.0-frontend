@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/search-context.js';
+import { useAuth } from '../../context/auth-context.js';
 import MiniCalendar from '../../components/MiniCalendar/MiniCalendar.jsx';
 import PostCard from '../../components/PostCard/PostCard.jsx';
 import PostMapView from '../../components/PostMapView/PostMapView.jsx';
@@ -28,6 +29,7 @@ const CATEGORIES = [
 export default function Home() {
   const navigate = useNavigate();
   const { query: searchTerm, setQuery: setSearchTerm } = useSearch(); //검색기능, 검색어 변경 탐지
+  const { initializing } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('all'); // 카테고리 기본값 = 전체
   const [sortOrder, setSortOrder] = useState('latest'); // 정렬 기본값 = 최신순
   const [isSuggestOpen, setIsSuggestOpen] = useState(false); // 검색 제안 패널 열림 상태
@@ -53,7 +55,7 @@ export default function Home() {
   const feedError = cached?.error ?? '';
 
   useEffect(() => {
-    if (feedCache[feedKey]) return;
+    if (initializing || feedCache[feedKey]) return;
 
     let cancelled = false;
     postsApi
@@ -70,7 +72,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [feedKey, selectedCategory, sortOrder, feedCache]);
+  }, [feedKey, selectedCategory, sortOrder, feedCache, initializing]);
 
   const [stats, setStats] = useState(null);
   useEffect(() => {

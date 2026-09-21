@@ -154,9 +154,10 @@
 .draft-row{
   width:100%;display:flex;align-items:flex-start;gap:10px;
   border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);
-  text-align:left;
+  text-align:left;cursor:pointer;
 }
 .draft-row:hover{border-color:var(--primary);}
+.draft-row:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
 .draft-row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
 .draft-row-head{display:flex;align-items:center;gap:8px;}
 .draft-badge{

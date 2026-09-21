@@ -40,7 +40,7 @@ export default function Login() {
           <img className="logo-stamp" src="/logo.svg" alt="로고" />여정
         </Link>
         <h1>다시 만나 반가워요</h1>
-        <p className="auth-sub">소도시의 진짜 이야기를 계속 만나보세요.</p>
+        <p className="auth-sub">나누고 싶은 여행 정보, 여가 정보를 남기러 가요</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label className="auth-field">

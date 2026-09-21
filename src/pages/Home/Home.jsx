@@ -129,6 +129,7 @@ export default function Home() {
 
   return (
     <section id="page-home" className="page">
+      {/*
       <div className="promo-banner">
         <div className="promo-tag">공식 제휴 · AD</div>
         <div className="promo-text">
@@ -137,6 +138,7 @@ export default function Home() {
         </div>
         <button className="promo-cta" onClick={() => navigate('/calendar')}>자세히 보기 →</button>
       </div>
+      */}
 
       <div className="hero">
         <div className="hero-text">
@@ -176,7 +178,7 @@ export default function Home() {
       </div>
 
       <div className="stat-strip">
-        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">여정이 남은 소도시</div></div>
+        <div className="stat-item"><div className="num">{stats ? stats.certifiedRegionCount.toLocaleString() : '-'}</div><div className="lbl">여정을 남긴 지역 수</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.certifiedPostCount.toLocaleString() : '-'}</div><div className="lbl">누적 여정글</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.monthlyPostCount.toLocaleString() : '-'}</div><div className="lbl">이번달 여정글</div></div>
         <div className="stat-item"><div className="num">{stats ? stats.inProgressFestivalCount.toLocaleString() : '-'}</div><div className="lbl">이번 달 진행중 축제</div></div>

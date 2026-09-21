@@ -4,6 +4,7 @@ import PostCard from '../../components/PostCard/PostCard.jsx';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import { REGION_HIERARCHY, toRegionSearchTerm } from '../../data/regions.js';
 import { useAuth } from '../../context/auth-context.js';
+import { ChevronDownIcon } from '../../components/Icons/Icons.jsx';
 import * as postsApi from '../../api/posts.js';
 import * as searchApi from '../../api/search.js';
 import { getErrorMessage } from '../../api/errors.js';
@@ -34,6 +35,12 @@ export default function SearchResults() {
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState('latest');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const activeFilterLabel = [
+    selectedCategory === 'all' ? null : selectedCategory,
+    selectedRegion === 'all' ? null : selectedRegion,
+  ].filter(Boolean).join(' · ');
 
   const runSearch = (term) => {
     setSearchTerm(term);
@@ -45,6 +52,7 @@ export default function SearchResults() {
   const selectRegion = (districtName) => {
     setSelectedRegion(districtName);
     runSearch(toRegionSearchTerm(districtName));
+    setIsFilterOpen(false);
   };
 
   const resetFilters = () => {
@@ -55,11 +63,6 @@ export default function SearchResults() {
     runSearch('');
   };
 
-  // 검색어가 있으면 검색 API(오프셋 페이지네이션), 없으면 둘러보기 피드(커서 기반)를 쓴다.
-  // 지역 전용 필터 파라미터가 백엔드에 없어서(GET /posts, GET /searches 둘 다), 지역 선택은
-  // 검색창에 지역명을 넣고 검색을 실행하는 방식으로 임시 구현한다 — GET /searches가 이미
-  // region.text 필드를 매칭하므로 실제로 해당 지역 글만 걸러진다. 정식 region 파라미터가
-  // 생기면 이 우회를 걷어내고 selectedRegion을 직접 쿼리 파라미터로 넘기도록 바꿀 것.
   const isSearching = searchTermFromUrl.trim() !== '';
   const backendCategory = postsApi.toBackendCategory(selectedCategory);
   const backendSort = sortOrder.toUpperCase();
@@ -121,7 +124,6 @@ export default function SearchResults() {
         }));
       }
     } catch {
-      // 더보기 실패는 조용히 무시 — 버튼을 다시 누르면 재시도된다.
     } finally {
       setLoadingMore(false);
     }
@@ -129,11 +131,21 @@ export default function SearchResults() {
 
   return (
     <section className="page search-page">
-      <div className="eyebrow" style={{ marginTop: 26 }}>검색 결과</div>
 
       <div className="search-page-layout">
         <aside className="search-sidebar">
-          <div className="filter-group">
+          <button
+            type="button"
+            className={'filter-toggle' + (isFilterOpen ? ' open' : '')}
+            onClick={() => setIsFilterOpen((open) => !open)}
+            aria-expanded={isFilterOpen}
+          >
+            <span>필터{activeFilterLabel && <em>{activeFilterLabel}</em>}</span>
+            <ChevronDownIcon className="filter-toggle-caret" />
+          </button>
+
+          <div className={'search-filter-body' + (isFilterOpen ? ' open' : '')}>
+          <div className="filter-group filter-group-category">
             <h4>카테고리</h4>
             <div className="filter-option-list">
               {CATEGORY_FILTER_OPTIONS.map((option) => (
@@ -148,7 +160,9 @@ export default function SearchResults() {
             </div>
           </div>
 
-          <div className="filter-group">
+          <div className='eyebrow'></div>
+
+          <div className="filter-group filter-group-region">
             <h4>지역</h4>
             <div className="filter-option-list">
               <button
@@ -171,7 +185,6 @@ export default function SearchResults() {
                     {isSidoOpen && (
                       <div className="filter-option-list filter-option-list-sub">
                         {sido.districts.map((district) => {
-                          // 구가 나뉜 시("수원시" 등)는 {name, wards} 객체, 그 외는 문자열 그대로
                           if (typeof district === 'string') {
                             return (
                               <button
@@ -223,7 +236,8 @@ export default function SearchResults() {
             </div>
           </div>
 
-          <button className="filter-reset-btn" onClick={resetFilters}>필터 초기화</button>
+          {/* <button className="filter-reset-btn" onClick={resetFilters}>필터 초기화</button> */}
+          </div>
         </aside>
 
         <div className="search-main">

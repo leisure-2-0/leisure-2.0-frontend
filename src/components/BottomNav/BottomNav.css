@@ -8,7 +8,9 @@
 }
 
 @media (max-width:720px){
-  .bottom-nav{display:flex;align-items:flex-start;justify-content:space-around;}
+  .bottom-nav{display:flex;align-items:center;justify-content:space-around;}
+  .bottom-nav-item{padding-top:9px;}
+  .bottom-nav-write{padding-top:4px;}
 }
 
 .bottom-nav-item{

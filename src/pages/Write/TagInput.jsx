@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
-export default function TagInput({ tags, onChange, maxTags = 10 }) {
+export default function TagInput({ tags, onChange, maxTags = 10, maxTagLength = 10 }) {
   const [draft, setDraft] = useState('');
+  const [isComposing, setIsComposing] = useState(false);
   const atLimit = tags.length >= maxTags;
 
-  const commitDraft = () => {
-    const cleaned = draft.trim().replace(/^#/, '');
+  const commitValue = (value) => {
+    const cleaned = value.trim().replace(/^#/, '').slice(0, maxTagLength);
     if (!cleaned || tags.includes(cleaned) || atLimit) {
       setDraft('');
       return;
@@ -14,9 +15,31 @@ export default function TagInput({ tags, onChange, maxTags = 10 }) {
     setDraft('');
   };
 
+  const commitDraft = () => commitValue(draft);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    if (!isComposing && value.replace(/^#/, '').length >= maxTagLength) {
+      commitValue(value);
+      return;
+    }
+    setDraft(value);
+  };
+
+  const handleCompositionEnd = (e) => {
+    setIsComposing(false);
+    const value = e.target.value;
+    if (value.replace(/^#/, '').length >= maxTagLength) {
+      commitValue(value);
+      return;
+    }
+    setDraft(value);
+  };
+
   const removeTag = (tag) => onChange(tags.filter((t) => t !== tag));
 
   const handleKeyDown = (e) => {
+    if (e.nativeEvent.isComposing) return;
     // 태그엔 보통 스페이스바 대신 #해시_태그 처럼 언더스코어를 쓰므로, 스페이스바도 Enter처럼 태그를 확정한다.
     if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault();
@@ -45,7 +68,9 @@ export default function TagInput({ tags, onChange, maxTags = 10 }) {
                 : '태그 추가'
             }
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={handleChange}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={handleCompositionEnd}
             onKeyDown={handleKeyDown}
             onBlur={commitDraft}
           />

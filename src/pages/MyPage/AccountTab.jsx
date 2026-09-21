@@ -45,6 +45,10 @@ export default function AccountTab() {
     e.preventDefault();
     const trimmed = nicknameDraft.trim();
     if (!trimmed) return;
+    if (/\s/.test(trimmed)) {
+      setProfileMessage('닉네임에는 공백을 넣을 수 없어요.');
+      return;
+    }
     setIsSaving(true);
     setProfileMessage('');
     try {
@@ -124,7 +128,7 @@ export default function AccountTab() {
           <div className="account-row">
             <span className="account-label">닉네임</span>
             {isEditing ? (
-              <input type="text" value={nicknameDraft} onChange={(e) => setNicknameDraft(e.target.value)} required autoFocus />
+              <input type="text" value={nicknameDraft} onChange={(e) => setNicknameDraft(e.target.value)} maxLength={15} required autoFocus />
             ) : (
               <span className="account-value">{user.nickname}</span>
             )}

@@ -83,7 +83,6 @@ export default function CalendarPage() {
 
   return (
     <section id="page-calendar" className="page">
-      <div className="eyebrow" style={{ marginTop: 26 }}>축제 캘린더 — 전국 소도시 일정</div>
       <div className="cal-topbar">
         <div className="cal-filters">
           {CALENDAR_FILTERS.map((filterOption) => (

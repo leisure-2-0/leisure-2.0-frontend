@@ -35,22 +35,21 @@ export default function TagInput({ tags, onChange, maxTags = 10 }) {
             <button type="button" onClick={() => removeTag(tag)} aria-label={`${tag} 태그 삭제`}>×</button>
           </span>
         ))}
-        <input
-          type="text"
-          className="tag-input-field"
-          placeholder={
-            atLimit
-              ? '태그는 최대 10개까지 추가할 수 있어요'
-              : tags.length === 0
+        {!atLimit && (
+          <input
+            type="text"
+            className="tag-input-field"
+            placeholder={
+              tags.length === 0
                 ? '태그를 입력하고 Enter나 스페이스바 (예: 혼자여행)'
                 : '태그 추가'
-          }
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={commitDraft}
-          disabled={atLimit}
-        />
+            }
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={commitDraft}
+          />
+        )}
       </div>
       <span className="tag-input-count">{tags.length}/{maxTags}</span>
     </div>

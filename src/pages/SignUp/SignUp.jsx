@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
 import * as authApi from '../../api/auth.js';
@@ -18,34 +18,56 @@ const DUPLICATE_CHECK_DELAY_MS = 500;
 // 로컬파트@도메인.최상위도메인 — 공백과 연속된 점을 허용하지 않는다.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
+const EMAIL_LABELS = {
+  available: '사용 가능한 이메일이에요.',
+  taken: '이미 가입된 이메일이에요.',
+};
+
+const NICKNAME_LABELS = {
+  available: '사용 가능한 닉네임이에요.',
+  taken: '이미 사용 중인 닉네임이에요.',
+};
+
 function validateEmailFormat(value) {
   return EMAIL_PATTERN.test(value) ? '' : '이메일 형식이 올바르지 않아요. (예: you@example.com)';
 }
 
-function useDuplicateCheck(value, checkFn, validateFormat) {
+function useDuplicateCheck(value, checkFn, validateFormat, labels) {
   const [status, setStatus] = useState(IDLE_STATUS);
 
-  useEffect(() => {
-    const trimmed = value.trim();
-    const timer = setTimeout(() => {
+  const runCheck = useCallback(
+    (raw) => {
+      const trimmed = raw.trim();
       if (!trimmed) {
         setStatus(IDLE_STATUS);
-        return;
+        return Promise.resolve(null);
       }
       const formatError = validateFormat ? validateFormat(trimmed) : '';
       if (formatError) {
         setStatus({ checking: false, message: formatError, available: false });
-        return;
+        return Promise.resolve(false);
       }
       setStatus({ checking: true, message: '', available: null });
-      checkFn(trimmed)
-        .then((res) => setStatus({ checking: false, message: res.data.message, available: true }))
-        .catch((err) => setStatus({ checking: false, message: getErrorMessage(err), available: false }));
-    }, DUPLICATE_CHECK_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [value]);
+      return checkFn(trimmed)
+        .then(() => {
+          setStatus({ checking: false, message: labels.available, available: true });
+          return true;
+        })
+        .catch((err) => {
+          const message = err?.response?.status === 409 ? labels.taken : getErrorMessage(err);
+          setStatus({ checking: false, message, available: false });
+          return false;
+        });
+    },
+    [checkFn, validateFormat, labels]
+  );
 
-  return status;
+  useEffect(() => {
+    const timer = setTimeout(() => runCheck(value), DUPLICATE_CHECK_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [value, runCheck]);
+
+  return { ...status, recheck: () => runCheck(value) };
 }
 
 export default function SignUp() {
@@ -56,8 +78,8 @@ export default function SignUp() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail, validateEmailFormat);
-  const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname);
+  const emailStatus = useDuplicateCheck(form.email, authApi.checkEmail, validateEmailFormat, EMAIL_LABELS);
+  const nicknameStatus = useDuplicateCheck(form.nickname, authApi.checkNickname, null, NICKNAME_LABELS);
 
   const passwordsMismatch = isConfirmTouched && form.confirmPassword !== '' && form.confirmPassword !== form.password;
   const canSubmit =
@@ -85,7 +107,23 @@ export default function SignUp() {
       });
       navigate('/', { replace: true });
     } catch (err) {
-      setError(getErrorMessage(err));
+      const status = err?.response?.status;
+      if (status === 409) {
+        const [emailOk, nicknameOk] = await Promise.all([emailStatus.recheck(), nicknameStatus.recheck()]);
+        if (!emailOk && !nicknameOk) {
+          setError('이미 가입된 이메일이고, 닉네임도 사용 중이에요.');
+        } else if (!emailOk) {
+          setError('이미 가입된 이메일이에요.');
+        } else if (!nicknameOk) {
+          setError('이미 사용 중인 닉네임이에요.');
+        } else {
+          setError('가입 처리 중 문제가 생겼어요. 다시 시도해주세요.');
+        }
+      } else if (status === 400) {
+        setError('입력한 내용을 다시 확인해주세요. 비밀번호는 영문·숫자·특수문자(!@#$%)를 포함해 8~20자여야 해요.');
+      } else {
+        setError(getErrorMessage(err));
+      }
     } finally {
       setIsSubmitting(false);
     }

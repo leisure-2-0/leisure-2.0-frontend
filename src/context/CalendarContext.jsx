@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { CalendarContext } from './calendar-context.js';
 
-// August 2026, 0-indexed month
-const INITIAL_YEAR = 2026;
-const INITIAL_MONTH = 7;
-
 export function CalendarProvider({ children }) {
-  const [calYear, setCalYear] = useState(INITIAL_YEAR);
-  const [calMonth, setCalMonth] = useState(INITIAL_MONTH);
+  const [calYear, setCalYear] = useState(() => new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
   const [selectedDate, setSelectedDate] = useState(null);
 
   const goPrevMonth = () => {

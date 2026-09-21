@@ -22,7 +22,43 @@
 
 .search-main .section-head h3{display:flex;align-items:baseline;gap:8px;}
 
+.filter-toggle{display:none;}
+.filter-toggle-caret{
+  width:18px;height:18px;flex-shrink:0;
+  color:var(--ink-faint);transition:transform .2s;
+}
+.filter-toggle.open .filter-toggle-caret{transform:rotate(180deg);color:var(--primary-deep);}
+
 @media (max-width:1050px){
   .search-page-layout{grid-template-columns:1fr;}
   .search-sidebar{flex-direction:row;flex-wrap:wrap;gap:26px;}
+}
+
+@media (max-width:760px){
+  .search-page-layout{gap:16px;}
+  .search-sidebar{display:block;}
+
+  .filter-toggle{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+    border:1px solid var(--line);border-radius:10px;background:var(--surface);
+    padding:12px 14px;font-size:14px;font-weight:700;color:var(--ink);font-family:inherit;
+  }
+  .filter-toggle em{font-style:normal;font-weight:600;color:var(--primary-deep);margin-left:6px;}
+
+  .search-filter-body{display:none;}
+  .search-filter-body.open{
+    display:block;margin-top:12px;padding:16px 14px;
+    border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  }
+
+  .search-filter-body .filter-group{margin-bottom:20px;}
+
+  .filter-group-category .filter-option-list{flex-direction:row;flex-wrap:wrap;gap:6px;}
+  .filter-group-category .filter-option{
+    border:1px solid var(--line);border-radius:16px;padding:7px 13px;
+  }
+
+  .filter-group-region .filter-option-list{max-height:280px;overflow-y:auto;}
+
+  .filter-reset-btn{width:100%;}
 }

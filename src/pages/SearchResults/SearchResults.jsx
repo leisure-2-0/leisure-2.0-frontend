@@ -4,6 +4,7 @@ import PostCard from '../../components/PostCard/PostCard.jsx';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import { REGION_HIERARCHY, toRegionSearchTerm } from '../../data/regions.js';
 import { useAuth } from '../../context/auth-context.js';
+import { ChevronDownIcon } from '../../components/Icons/Icons.jsx';
 import * as postsApi from '../../api/posts.js';
 import * as searchApi from '../../api/search.js';
 import { getErrorMessage } from '../../api/errors.js';
@@ -34,6 +35,12 @@ export default function SearchResults() {
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState('latest');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const activeFilterLabel = [
+    selectedCategory === 'all' ? null : selectedCategory,
+    selectedRegion === 'all' ? null : selectedRegion,
+  ].filter(Boolean).join(' · ');
 
   const runSearch = (term) => {
     setSearchTerm(term);
@@ -45,6 +52,7 @@ export default function SearchResults() {
   const selectRegion = (districtName) => {
     setSelectedRegion(districtName);
     runSearch(toRegionSearchTerm(districtName));
+    setIsFilterOpen(false);
   };
 
   const resetFilters = () => {
@@ -129,11 +137,21 @@ export default function SearchResults() {
 
   return (
     <section className="page search-page">
-      <div className="eyebrow" style={{ marginTop: 26 }}>검색 결과</div>
 
       <div className="search-page-layout">
         <aside className="search-sidebar">
-          <div className="filter-group">
+          <button
+            type="button"
+            className={'filter-toggle' + (isFilterOpen ? ' open' : '')}
+            onClick={() => setIsFilterOpen((open) => !open)}
+            aria-expanded={isFilterOpen}
+          >
+            <span>필터{activeFilterLabel && <em>{activeFilterLabel}</em>}</span>
+            <ChevronDownIcon className="filter-toggle-caret" />
+          </button>
+
+          <div className={'search-filter-body' + (isFilterOpen ? ' open' : '')}>
+          <div className="filter-group filter-group-category">
             <h4>카테고리</h4>
             <div className="filter-option-list">
               {CATEGORY_FILTER_OPTIONS.map((option) => (
@@ -148,7 +166,7 @@ export default function SearchResults() {
             </div>
           </div>
 
-          <div className="filter-group">
+          <div className="filter-group filter-group-region">
             <h4>지역</h4>
             <div className="filter-option-list">
               <button
@@ -224,6 +242,7 @@ export default function SearchResults() {
           </div>
 
           <button className="filter-reset-btn" onClick={resetFilters}>필터 초기화</button>
+          </div>
         </aside>
 
         <div className="search-main">

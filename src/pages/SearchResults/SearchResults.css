@@ -29,7 +29,7 @@
 }
 .filter-toggle.open .filter-toggle-caret{transform:rotate(180deg);color:var(--primary-deep);}
 
-@media (max-width:1050px){
+@media (max-width:760px){
   .search-page-layout{grid-template-columns:1fr;}
   .search-sidebar{flex-direction:row;flex-wrap:wrap;gap:26px;}
 }

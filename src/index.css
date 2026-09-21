@@ -48,6 +48,14 @@ main.main-full-bleed{max-width:none;margin:0;padding:0;}
 .page{animation:fadeIn .35s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;
+  color:var(--ink-faint);text-transform:uppercase;font-weight:500;
+  display:flex;align-items:center;gap:10px;margin-bottom:15px;margin-top:10px;
+  }
+
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line);}
+
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);}
 
 .logo-stamp{

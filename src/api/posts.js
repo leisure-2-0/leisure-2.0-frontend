@@ -110,7 +110,7 @@ export function toCardPost(item) {
     region: item.region || '',
     category: CATEGORY_LABELS[item.category] || item.category,
     thumbnailVariant: (item.postId % 4) + 1,
-    imageSeed: undefined,
+    thumbnailUrl: item.thumbnailUrl || null,
     title: item.title,
     tags: (item.tags || []).map((tag) => `#${tag}`),
     views: item.viewCount,

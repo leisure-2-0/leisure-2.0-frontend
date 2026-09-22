@@ -4,6 +4,7 @@ import { useAuth } from '../../context/auth-context.js';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import * as postsApi from '../../api/posts.js';
 import { getErrorMessage } from '../../api/errors.js';
+import { uploadImage, IMAGE_PURPOSE } from '../../api/images.js';
 import CoverImageField from './CoverImageField.jsx';
 import LocationPickerField from './LocationPickerField.jsx';
 import TagInput from './TagInput.jsx';
@@ -31,6 +32,7 @@ function toRequestFields(s) {
           longitude: s.location.lng,
         }
       : null,
+    thumbnailUrl: s.coverImageUrl ?? null,
   };
 }
 
@@ -56,6 +58,8 @@ export default function WritePost() {
   const [missingFields, setMissingFields] = useState([]);
   const [formError, setFormError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [bodyImageUploading, setBodyImageUploading] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(isEditMode);
   const [loadFailed, setLoadFailed] = useState(false);
 
@@ -91,6 +95,7 @@ export default function WritePost() {
         );
         setBodyHtml(data.content || '');
         setIsBodyEmpty(!data.content);
+        setCoverImageUrl(data.thumbnailUrl || null);
       })
       .catch(() => {
         if (!cancelled) setLoadFailed(true);
@@ -115,6 +120,23 @@ export default function WritePost() {
     return newId;
   };
 
+  const uploadingRef = useRef(false);
+  useEffect(() => {
+    uploadingRef.current = coverUploading || bodyImageUploading;
+  }, [coverUploading, bodyImageUploading]);
+
+  const handleCoverFile = async (file) => {
+    setFormError('');
+    setCoverUploading(true);
+    try {
+      setCoverImageUrl(await uploadImage(file, IMAGE_PURPOSE.POST));
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
   const discardPostIdIfGone = (err) => {
     if (err?.response?.status === 404) postIdRef.current = null;
   };
@@ -128,6 +150,7 @@ export default function WritePost() {
   useEffect(() => {
     if (isEditMode) return; // 게시된 글 수정은 명시적 저장만 지원(자동저장 없음)
     const timer = setInterval(async () => {
+      if (uploadingRef.current) return;
       const s = stateRef.current;
       const hasContent = s.title.trim() !== '' || !s.isBodyEmpty || s.tags.length > 0;
       if (!hasContent) return;
@@ -190,7 +213,7 @@ export default function WritePost() {
       const data = await postsApi.getMyDraftDetail(draft.id);
       postIdRef.current = data.postId;
       setTitle(data.title || '');
-      setCoverImageUrl(null);
+      setCoverImageUrl(data.thumbnailUrl || null);
       setCategory(postsApi.fromBackendCategory(data.category) || CATEGORY_OPTIONS[0]);
       setTags(data.tags || []);
       setLocation(
@@ -266,7 +289,12 @@ export default function WritePost() {
   return (
     <section className="page write-page">
       <form onSubmit={handleSubmit}>
-        <CoverImageField previewUrl={coverImageUrl} onChange={setCoverImageUrl} />
+        <CoverImageField
+          previewUrl={coverImageUrl}
+          uploading={coverUploading}
+          onFile={handleCoverFile}
+          onReset={() => setCoverImageUrl('')}
+        />
 
         <div className="auth-field">
           <span>카테고리</span>
@@ -294,7 +322,13 @@ export default function WritePost() {
             maxLength={50}
           />
 
-          <RichTextEditor ref={editorRef} onUpdate={handleEditorUpdate} content={bodyHtml} />
+          <RichTextEditor
+            ref={editorRef}
+            onUpdate={handleEditorUpdate}
+            content={bodyHtml}
+            onImageUploadError={setFormError}
+            onImageUploadingChange={setBodyImageUploading}
+          />
           <div className={'write-body-counter' + (isOverBodyLimit ? ' over' : '')}>
             {bodyLength.toLocaleString()} / {MAX_BODY_LENGTH.toLocaleString()}자
           </div>
@@ -321,7 +355,7 @@ export default function WritePost() {
           </div>
           <div className="write-actions-right">
             <button type="button" className="write-cancel" onClick={() => navigate(-1)}>취소</button>
-            <button type="submit" className="auth-submit" disabled={isPublishing}>
+            <button type="submit" className="auth-submit" disabled={isPublishing || coverUploading || bodyImageUploading}>
               {isEditMode ? '수정 완료' : '게시하기'}
             </button>
           </div>

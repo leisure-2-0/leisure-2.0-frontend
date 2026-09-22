@@ -4,7 +4,7 @@ import { useAuth } from '../../context/auth-context.js';
 import { CATEGORY_ICONS } from '../../data/posts.js';
 import * as postsApi from '../../api/posts.js';
 import { getErrorMessage } from '../../api/errors.js';
-import { uploadImage, IMAGE_PURPOSE } from '../../api/images.js';
+import { uploadImage, validateImageFile, IMAGE_PURPOSE } from '../../api/images.js';
 import CoverImageField from './CoverImageField.jsx';
 import LocationPickerField from './LocationPickerField.jsx';
 import TagInput from './TagInput.jsx';
@@ -56,6 +56,7 @@ export default function WritePost() {
   const [draftsLoading, setDraftsLoading] = useState(false);
   const [savedHint, setSavedHint] = useState('');
   const [missingFields, setMissingFields] = useState([]);
+  const [imageAlert, setImageAlert] = useState('');
   const [formError, setFormError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -125,13 +126,23 @@ export default function WritePost() {
     uploadingRef.current = coverUploading || bodyImageUploading;
   }, [coverUploading, bodyImageUploading]);
 
+  const reportImageError = (err) => {
+    if (err.isInvalidFile) setImageAlert(err.message);
+    else setFormError(err.message);
+  };
+
   const handleCoverFile = async (file) => {
+    const invalidReason = validateImageFile(file);
+    if (invalidReason) {
+      setImageAlert(invalidReason);
+      return;
+    }
     setFormError('');
     setCoverUploading(true);
     try {
       setCoverImageUrl(await uploadImage(file, IMAGE_PURPOSE.POST));
     } catch (err) {
-      setFormError(err.message);
+      reportImageError(err);
     } finally {
       setCoverUploading(false);
     }
@@ -326,7 +337,7 @@ export default function WritePost() {
             ref={editorRef}
             onUpdate={handleEditorUpdate}
             content={bodyHtml}
-            onImageUploadError={setFormError}
+            onImageUploadError={reportImageError}
             onImageUploadingChange={setBodyImageUploading}
           />
           <div className={'write-body-counter' + (isOverBodyLimit ? ' over' : '')}>
@@ -371,6 +382,19 @@ export default function WritePost() {
         <div className="write-missing-actions">
           <button type="button" className="auth-submit" onClick={() => setMissingFields([])}>
             돌아가서 채우기
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={imageAlert !== ''}
+        onClose={() => setImageAlert('')}
+        title="이미지를 등록할 수 없어요"
+      >
+        <p className="write-missing-message">{imageAlert}</p>
+        <div className="write-missing-actions">
+          <button type="button" className="auth-submit" onClick={() => setImageAlert('')}>
+            확인
           </button>
         </div>
       </Modal>

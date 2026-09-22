@@ -88,7 +88,7 @@ const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content, o
       const imageUrl = await uploadImage(file, IMAGE_PURPOSE.CONTENT);
       editor.chain().focus().setImage({ src: imageUrl }).run();
     } catch (err) {
-      onImageUploadError?.(err.message);
+      onImageUploadError?.(err);
     } finally {
       setIsUploadingImage(false);
       onImageUploadingChange?.(false);

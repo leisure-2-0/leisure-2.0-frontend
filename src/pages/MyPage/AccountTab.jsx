@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
 import * as authApi from '../../api/auth.js';
 import { getErrorMessage } from '../../api/errors.js';
+import { uploadImage, IMAGE_PURPOSE } from '../../api/images.js';
 // import { POINT_HISTORY } from '../../data/mypage.js'; // 적립 내역 조회 API가 아직 없어 비활성화
 
 export default function AccountTab() {
@@ -18,6 +19,7 @@ export default function AccountTab() {
   const [isEditing, setIsEditing] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState(user.nickname);
   const [avatarDraft, setAvatarDraft] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [profileMessage, setProfileMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
@@ -27,14 +29,15 @@ export default function AccountTab() {
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // 저장을 누르기 전까진 미리보기만 — 실제 반영은 handleSave에서 닉네임과 함께.
     setAvatarDraft(URL.createObjectURL(file));
+    setAvatarFile(file);
     e.target.value = '';
   };
 
   const startEditing = () => {
     setNicknameDraft(user.nickname);
     setAvatarDraft(null);
+    setAvatarFile(null);
     setProfileMessage('');
     setIsEditing(true);
   };
@@ -52,13 +55,16 @@ export default function AccountTab() {
     setIsSaving(true);
     setProfileMessage('');
     try {
-      // 프로필 이미지 업로드는 백엔드에 아직 없어 닉네임만 서버에 반영하고, 사진은 미리보기로만 표시한다.
-      await authApi.changeProfile({ nickname: trimmed, profileImageUrl: null });
-      updateProfile({ nickname: trimmed, ...(avatarDraft ? { avatarUrl: avatarDraft } : {}) });
+      const uploadedUrl = avatarFile ? await uploadImage(avatarFile, IMAGE_PURPOSE.PROFILE) : null;
+      await authApi.changeProfile({ nickname: trimmed, profileImageUrl: uploadedUrl });
+      updateProfile({ nickname: trimmed, ...(uploadedUrl ? { avatarUrl: uploadedUrl } : {}) });
+      if (avatarDraft) URL.revokeObjectURL(avatarDraft);
+      setAvatarDraft(null);
+      setAvatarFile(null);
       setIsEditing(false);
       setProfileMessage('저장되었어요.');
     } catch (err) {
-      setProfileMessage(getErrorMessage(err));
+      setProfileMessage(err?.response ? getErrorMessage(err) : err.message);
     } finally {
       setIsSaving(false);
     }

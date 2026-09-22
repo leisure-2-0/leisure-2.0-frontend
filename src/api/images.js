@@ -9,18 +9,22 @@ export const IMAGE_PURPOSE = {
 };
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_BYTES = 10 * 1024 * 1024;
 
-function validate(file) {
+export function validateImageFile(file) {
   if (!file.type) return '이미지 형식을 알 수 없어요. 다른 파일을 선택해주세요.';
   if (!ALLOWED_TYPES.includes(file.type)) return 'PNG, JPG, WEBP, GIF 이미지만 올릴 수 있어요.';
-  if (file.size > MAX_BYTES) return '이미지 크기는 5MB까지만 올릴 수 있어요.';
+  if (file.size > MAX_BYTES) return '이미지 크기는 10MB까지만 올릴 수 있어요.';
   return '';
 }
 
 export async function uploadImage(file, imagePurpose) {
-  const invalidReason = validate(file);
-  if (invalidReason) throw new Error(invalidReason);
+  const invalidReason = validateImageFile(file);
+  if (invalidReason) {
+    const error = new Error(invalidReason);
+    error.isInvalidFile = true;
+    throw error;
+  }
 
   const contentType = file.type;
   let presignedUrl;

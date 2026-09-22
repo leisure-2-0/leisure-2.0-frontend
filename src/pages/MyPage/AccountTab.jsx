@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
 import * as authApi from '../../api/auth.js';
 import { getErrorMessage } from '../../api/errors.js';
-import { uploadImage, IMAGE_PURPOSE } from '../../api/images.js';
+import { uploadImage, validateImageFile, IMAGE_PURPOSE } from '../../api/images.js';
 // import { POINT_HISTORY } from '../../data/mypage.js'; // 적립 내역 조회 API가 아직 없어 비활성화
 
 export default function AccountTab() {
@@ -29,9 +29,17 @@ export default function AccountTab() {
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
+
+    const invalidReason = validateImageFile(file);
+    if (invalidReason) {
+      window.alert(invalidReason);
+      return;
+    }
+
+    if (avatarDraft) URL.revokeObjectURL(avatarDraft);
     setAvatarDraft(URL.createObjectURL(file));
     setAvatarFile(file);
-    e.target.value = '';
   };
 
   const startEditing = () => {

@@ -109,7 +109,7 @@ export default function PostDetail() {
       <button type="button" className="post-detail-back" onClick={() => navigate(-1)}>← 목록으로</button>
 
       <div className="post-detail-cover">
-        <Thumbnail />
+        <Thumbnail variant={(Number(postId) % 4) + 1} src={post.thumbnailUrl} />
       </div>
 
       <div className="post-detail-head">

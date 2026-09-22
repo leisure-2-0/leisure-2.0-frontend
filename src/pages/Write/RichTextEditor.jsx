@@ -1,8 +1,9 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { uploadImage, IMAGE_PURPOSE } from '../../api/images.js';
 import './RichTextEditor.css';
 
 const TOOLBAR_BUTTONS = [
@@ -22,8 +23,9 @@ const LIST_BUTTONS = [
   { key: 'blockquote', label: '❝ 인용', run: (editor) => editor.chain().focus().toggleBlockquote().run() },
 ];
 
-const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content }, ref) {
+const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content, onImageUploadError, onImageUploadingChange }, ref) {
   const imageInputRef = useRef(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // 본문 글자수(HTML 태그 제외한 순수 텍스트 길이)를 title/isEmpty와 함께 부모에 알린다.
   // onCreate에서도 호출해야, 수정 모드처럼 기존 글이 마운트 시점부터 채워지는 경우에도
@@ -75,16 +77,22 @@ const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content },
     },
   });
 
-  const handleInsertImage = (e) => {
+  const handleInsertImage = async (e) => {
     const file = e.target.files?.[0];
-    if (!file || !editor) return;
-    // base64 data URL (not a blob URL) so inline images survive a saved-draft reload
-    const reader = new FileReader();
-    reader.onload = () => {
-      editor.chain().focus().setImage({ src: reader.result }).run();
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+    if (!file || !editor) return;
+
+    setIsUploadingImage(true);
+    onImageUploadingChange?.(true);
+    try {
+      const imageUrl = await uploadImage(file, IMAGE_PURPOSE.CONTENT);
+      editor.chain().focus().setImage({ src: imageUrl }).run();
+    } catch (err) {
+      onImageUploadError?.(err.message);
+    } finally {
+      setIsUploadingImage(false);
+      onImageUploadingChange?.(false);
+    }
   };
 
   if (!editor) return null;
@@ -125,7 +133,9 @@ const RichTextEditor = forwardRef(function RichTextEditor({ onUpdate, content },
           </button>
         ))}
         <span className="rich-editor-sep"></span>
-        <button type="button" onClick={() => imageInputRef.current?.click()}>🖼 사진</button>
+        <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploadingImage}>
+          {isUploadingImage ? '업로드 중...' : '🖼 사진'}
+        </button>
         <input ref={imageInputRef} type="file" accept="image/*" hidden onChange={handleInsertImage} />
       </div>
       <EditorContent editor={editor} className="rich-editor-content" />

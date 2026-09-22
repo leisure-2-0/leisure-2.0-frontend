@@ -80,7 +80,7 @@ export default function PostCard({ post, onToggled, onDeleted }) {
 
   return (
     <div className="post-card" onClick={() => navigate(`/post/${post.id}`)} role="button" tabIndex={0}>
-      <Thumbnail variant={post.thumbnailVariant} image={post.imageSeed} />
+      <Thumbnail variant={post.thumbnailVariant} src={post.thumbnailUrl} />
       <div className="post-body">
         <p className="post-title">{post.title}</p>
         <div className="post-tags">

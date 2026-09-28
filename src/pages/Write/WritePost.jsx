@@ -140,7 +140,7 @@ export default function WritePost() {
     setFormError('');
     setCoverUploading(true);
     try {
-      setCoverImageUrl(await uploadImage(file, IMAGE_PURPOSE.POST));
+      setCoverImageUrl(await uploadImage(file, IMAGE_PURPOSE.THUMBNAIL));
     } catch (err) {
       reportImageError(err);
     } finally {

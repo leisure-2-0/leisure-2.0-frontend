@@ -4,7 +4,7 @@ import { getErrorMessage } from './errors.js';
 
 export const IMAGE_PURPOSE = {
   PROFILE: 'PROFILE',
-  POST: 'POST',
+  THUMBNAIL: 'THUMBNAIL',
   CONTENT: 'CONTENT',
 };
 

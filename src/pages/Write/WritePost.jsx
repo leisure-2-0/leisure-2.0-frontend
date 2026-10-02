@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context.js';
 import { CATEGORY_ICONS } from '../../data/posts.js';
@@ -71,11 +72,10 @@ export default function WritePost() {
   // 수정 모드면 기존 게시글 내용을 불러와 폼을 채운다
   useEffect(() => {
     if (!isEditMode) return;
-    let cancelled = false;
+    const controller = new AbortController();
     postsApi
-      .getPostDetail(editingPostIdParam)
+      .getPostDetail(editingPostIdParam, { signal: controller.signal })
       .then((data) => {
-        if (cancelled) return;
         if (!data.isMine) {
           setLoadFailed(true);
           return;
@@ -98,14 +98,15 @@ export default function WritePost() {
         setIsBodyEmpty(!data.content);
         setCoverImageUrl(data.thumbnailUrl || null);
       })
-      .catch(() => {
-        if (!cancelled) setLoadFailed(true);
+      .catch((err) => {
+        if (axios.isCancel(err)) return;
+        setLoadFailed(true);
       })
       .finally(() => {
-        if (!cancelled) setIsLoadingPost(false);
+        if (!controller.signal.aborted) setIsLoadingPost(false);
       });
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [isEditMode, editingPostIdParam]);
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Map as KakaoMap, MapMarker, CustomOverlayMap, useKakaoLoader } from 'react-kakao-maps-sdk';
 import { KAKAO_APP_KEY, KAKAO_LOADER_OPTIONS } from '../../lib/kakaoLoader.js';
@@ -111,17 +112,18 @@ export default function PostMapView({ center, level = 11 }) {
   useEffect(() => {
     if (!selectedPin || previewCache[selectedPin.postId]) return;
     const postId = selectedPin.postId;
-    let cancelled = false;
+    const controller = new AbortController();
     postsApi
-      .getPostDetail(postId)
+      .getPostDetail(postId, { signal: controller.signal })
       .then((data) => {
-        if (!cancelled) setPreviewCache((prev) => ({ ...prev, [postId]: { data, error: false } }));
+        setPreviewCache((prev) => ({ ...prev, [postId]: { data, error: false } }));
       })
-      .catch(() => {
-        if (!cancelled) setPreviewCache((prev) => ({ ...prev, [postId]: { data: null, error: true } }));
+      .catch((err) => {
+        if (axios.isCancel(err)) return;
+        setPreviewCache((prev) => ({ ...prev, [postId]: { data: null, error: true } }));
       });
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [selectedPin, previewCache]);
 
